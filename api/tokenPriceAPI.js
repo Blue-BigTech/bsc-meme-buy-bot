@@ -4,16 +4,8 @@ const {BN} = require('web3-utils');
 const { setDecimals, addDecimals } = require('../utils/utils');
 let pancakeSwapAbi = JSON.parse(fs.readFileSync('abi/pancakeswap.json','utf-8'));
 let tokenAbi = JSON.parse(fs.readFileSync('abi/erc20.json','utf-8'));
-const {
-    PANCKAE_ADDR,
-    BNB_ADDR,
-    USDT_ADDR,
-    RPC_URL
-} = process.env;
 
 const web3 = new Web3(RPC_URL);
-const BNBBOSSFEE = 0.0025;
-const USDTBNBFEE = 0.0025;
 
 async function calcSell( tokensToSell, tokenAddr){
     let tokenRouter = await new web3.eth.Contract( tokenAbi, tokenAddr );
@@ -49,7 +41,6 @@ async function getDecimals( tokenAddress ){
 }
 
 async function amountByBNB( BNBToSell, tokenAddress ){
-    console.log(RPC_URL);
     let tokenDecimals = await getDecimals(tokenAddress);
     // BNBToSell = setDecimals((BNBToSell * (1 - BNBBOSSFEE)).toString(), 18);
     BNBToSell = setDecimals(BNBToSell, 18);
