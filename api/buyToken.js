@@ -13,14 +13,14 @@ const {
     PUBLIC_KEY,
     PANCKAE_ADDR,
     BNB_ADDR,
-    USDT_ADDR
+    USDT_ADDR,
+    RPC_URL
 } = process.env;
 
 let tokenAbi = JSON.parse(fs.readFileSync('abi/erc20.json','utf-8'));
 let pancakeAbi = JSON.parse(fs.readFileSync('abi/pancakeswap.json','utf-8'));
 // const tokenAddr = '0x49324d59327fB799813B902dB55b2a118d601547'; //BOSS
-const tokenAddr = '0x3103EC59f9Cb80A1A247b9Df10A0B3b5bDDc95d9'; // ASNZ
-const RPC_URL = 'https://bsctestapi.terminet.io/rpc'; //BSC testnet
+// const RPC_URL = 'https://bsctestapi.terminet.io/rpc'; //BSC testnet
 /***********************/
 const testTransferERC20 = async () => {
     const provider = new Provider(PRIVATE_KEY, RPC_URL);
@@ -34,42 +34,44 @@ const testTransferERC20 = async () => {
     console.log(receipt);
 }
 
-const swapBNBtoToken = async (amountIn, tokenAddress) => {
-    let amountOut = await amountByBNB(amountIn, tokenAddress);
-    const decimals = await getDecimals(tokenAddress);
-    amountOut = setDecimals(amountOut, decimals);
-    amountIn = web3.utils.toWei(amountIn, "ether");
-    console.log(amountIn, amountOut);
+const swapBNBtoToken = async (amountIn, amountOutMin, tokenAddress) => {
+    // let amountOutMin = await amountByBNB(amountIn, tokenAddress);
     const provider = new Provider(PRIVATE_KEY, RPC_URL);
     const web3 = new Web3(provider);
+    const decimals = await getDecimals(tokenAddress);
+    // amountOutMin = setDecimals(amountOutMin, decimals);
+    amountIn = web3.utils.toWei(amountIn.toString(), "ether");
+    console.log(amountIn, amountOutMin);
     const pancakeRouter = new web3.eth.Contract(pancakeAbi, PANCKAE_ADDR);
-    const myaddr = '0xb4EcE37D3230eb30D1ee6a0cB24B828a1a318AF0'
     let deadline = web3.utils.toHex(Math.round(Date.now()/1000)+60*20);
-    let res = await pancakeRouter.methods.swapETHForExactTokens(amountOut, [BNB_ADDR, tokenAddress], myaddr, deadline).send({from:myaddr, value:amountIn});
+    let res = await pancakeRouter.methods.swapExactETHForTokens(amountOutMin, [BNB_ADDR, tokenAddress], PUBLIC_KEY, deadline).send({ from:PUBLIC_KEY, value:amountIn });
+    // let res = await pancakeRouter.methods.swapExactETHForTokens(amountOutMin, [BNB_ADDR, tokenAddress], PUBLIC_KEY, deadline).send({ value: amountIn });
+    console.log(res);
 }
 
-const swapUSDTtoToken = async (amountIn, tokenAddress) => {
-    let decimals = await getDecimals(USDT_ADDR);
-    amountIn = setDecimals(amountIn, decimals);
-    let amountOut = await amountByUSDT(amountIn, tokenAddress);
-    decimals = await getDecimals(tokenAddress);
-    amountOut = setDecimals(amountOut, decimals);
-    console.log(amountIn, amountOut);
+const swapUSDTtoToken = async (amountIn, amountOutMin, tokenAddress) => {
     const provider = new Provider(PRIVATE_KEY, RPC_URL);
     const web3 = new Web3(provider);
+    let decimals = await getDecimals(USDT_ADDR);
+    amountIn = setDecimals(amountIn, decimals);
+    // let amountOutMin = await amountByUSDT(amountIn, tokenAddress);
+    decimals = await getDecimals(tokenAddress);
+    amountOutMin = setDecimals(amountOutMin, decimals);
+    console.log(amountIn, amountOutMin);
     //approve
     const tokenRouter = new web3.eth.Contract(tokenAbi, USDT_ADDR);
-    let appres = await tokenRouter.methods.approve(pancakeRouter, amountIn).send({from:myaddr})
+    let appres = await tokenRouter.methods.approve(pancakeRouter, amountIn).send({ from:PUBLIC_KEY })
     //swap
     const pancakeRouter = new web3.eth.Contract(pancakeAbi, PANCKAE_ADDR);
-    const myaddr = '0xb4EcE37D3230eb30D1ee6a0cB24B828a1a318AF0'
     let deadline = web3.utils.toHex(Math.round(Date.now()/1000)+60*20);
-    let res = await pancakeRouter.methods.swapExactTokensForTokens(amountOut, [BNB_ADDR, tokenAddress], myaddr, deadline).send({from:myaddr, value:amountIn});
+    let res = await pancakeRouter.methods.swapExactTokensForTokens(amountOutMin, [BNB_ADDR, tokenAddress], PUBLIC_KEY, deadline).send({ from:PUBLIC_KEY, value:amountIn });
+    console.log(res);
 }
 
 module.exports = {
     testTransferERC20,
-    swapBNBtoToken
+    swapBNBtoToken,
+    swapUSDTtoToken
 }
 
 // let abi = ["function approve(address _spender, uint256 _value) public returns (bool success)"]

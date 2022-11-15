@@ -127,12 +127,15 @@ const startBot = () => {
 }
 
 const test = async () => {
+    let BUSDAddress = '0xaB1a4d4f1D656d2450692D237fdD6C7f9146e814';//test
+    // let BUSDAddress = '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56';//main
     // const amount = await calcBNBPrice();
-    const amount = await amountByBNB( 1, tokenAddress )
-    console.log(amount)
+    // const amount = await amountByBNB( 1, BUSDAddress )
+    // console.log(amount)
     // const amount = await amountByUSDT( 1, tokenAddress )
-    // await testTransferERC20();
-    let res = swapBNBtoToken(1, tokenAddress);
+    // let res = await testTransferERC20();
+    let res = swapBNBtoToken(1, 30, BUSDAddress);
+    console.log(res)
 }
 
 module.exports = {

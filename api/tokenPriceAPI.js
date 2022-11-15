@@ -49,15 +49,20 @@ async function getDecimals( tokenAddress ){
 }
 
 async function amountByBNB( BNBToSell, tokenAddress ){
+    console.log(RPC_URL);
     let tokenDecimals = await getDecimals(tokenAddress);
     tokenDecimals = parseInt(tokenDecimals) + 1;
-    BNBToSell = setDecimals((BNBToSell * (1 - BNBBOSSFEE)).toString(), 18);
+    // BNBToSell = setDecimals((BNBToSell * (1 - BNBBOSSFEE)).toString(), 18);
+    BNBToSell = setDecimals(BNBToSell, 18);
 
     let amountOut;
     try {
         let router = await new web3.eth.Contract( pancakeSwapAbi, PANCKAE_ADDR );
         amountOut = await router.methods.getAmountsOut(BNBToSell, [BNB_ADDR, tokenAddress]).call();
-        amountOut = ((new BN(amountOut[1])).div(new BN(web3.utils.padRight('1', tokenDecimals, '0')))).toString();
+        console.log(amountOut);
+        let amountOutNum = ((new BN(amountOut[1])).div(new BN(web3.utils.padRight('1', tokenDecimals, '0')))).toString();
+        let amountOutDec = ((amountOut[1]).toString()).substr(amountOutNum.length, 4);
+        amountOut = `${amountOutNum}.${amountOutDec}`
     } catch (error) {}
     
     if(!amountOut) return 0;
