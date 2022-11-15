@@ -39,7 +39,7 @@ const swapBNBtoToken = async (amountIn, amountOutMin, tokenAddress) => {
     const provider = new Provider(PRIVATE_KEY, RPC_URL);
     const web3 = new Web3(provider);
     const decimals = await getDecimals(tokenAddress);
-    // amountOutMin = setDecimals(amountOutMin, decimals);
+    amountOutMin = setDecimals(amountOutMin, decimals);
     amountIn = web3.utils.toWei(amountIn.toString(), "ether");
     console.log(amountIn, amountOutMin);
     const pancakeRouter = new web3.eth.Contract(pancakeAbi, PANCKAE_ADDR);

@@ -3,6 +3,7 @@ const { testTransferERC20, swapBNBtoToken } = require('../api/buyToken');
 
 const ColorType = Object.freeze({'green' : 0, 'red' : 1, 'none' : 2});
 const Slippage = Object.freeze({'negative' : 0, 'positive' : 1});
+const { USDT_ADDR } = process.env;
 
 let curBar = {
     High    : 0,
@@ -127,14 +128,15 @@ const startBot = () => {
 }
 
 const test = async () => {
-    let BUSDAddress = '0xaB1a4d4f1D656d2450692D237fdD6C7f9146e814';//test
+    // let BUSDAddress = '0xaB1a4d4f1D656d2450692D237fdD6C7f9146e814';//test
     // let BUSDAddress = '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56';//main
     // const amount = await calcBNBPrice();
-    // const amount = await amountByBNB( 1, BUSDAddress )
-    // console.log(amount)
+    let bnb = 0.0037;
+    const amount = await amountByBNB( bnb*(1-0.05), USDT_ADDR )
+    console.log(amount)
     // const amount = await amountByUSDT( 1, tokenAddress )
     // let res = await testTransferERC20();
-    let res = swapBNBtoToken(1, 30, BUSDAddress);
+    let res = swapBNBtoToken(bnb, amount, USDT_ADDR);
     console.log(res)
 }
 
