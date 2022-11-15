@@ -1,0 +1,28 @@
+{
+  "name": "bsc-meme-bot",
+  "version": "1.0.0",
+  "description": "bsc-meme-token-buy-bot",
+  "author": {
+    "name": "bluebigtech"
+  },
+  "license": "MIT",
+  "scripts": {
+    "client": "cd client && npm run start",
+    "server": "nodemon server.js",
+    "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
+    "dev:server": "cd client && npm run build && cd .. && npm run start",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@truffle/hdwallet-provider": "^2.1.1",
+    "body-parser": "^1.19.0",
+    "dotenv": "^16.0.3",
+    "dotenv-safe": "^8.2.0",
+    "express": "^4.17.1",
+    "web3": "^1.8.0",
+    "web3-utils": "^1.8.1"
+  },
+  "devDependencies": {
+    "concurrently": "^5.3.0"
+  }
+}
