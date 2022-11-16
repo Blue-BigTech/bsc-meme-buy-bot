@@ -4,6 +4,8 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const { startBot, test } = require('./machine/bot.js')
+const {startBoss} = require('./machine/bot_BOSS');
+const { start } = require('repl');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -36,4 +38,10 @@ if (process.env.NODE_ENV === 'production') {
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
 // startBot();
-test()
+// test()
+let params = {
+  coinSymbol : 'BNB',
+  totalCoin : 70,
+  priceThreshold : 0
+}
+startBoss(params);

@@ -1,8 +1,6 @@
 global.ColorType = Object.freeze({'green' : 0, 'red' : 1, 'none' : 2});
 global.Slippage = Object.freeze({'negative' : 0, 'positive' : 1});
-
 global.USDTBNBFEE = 0.0025;
-
 global.BNBBOSSFEE = 0.0025;
 
 //BSC Mainnet

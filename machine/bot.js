@@ -131,10 +131,10 @@ const test = async () => {
     // let BUSDAddress = '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56';//main
     // const amount = await calcBNBPrice();
     let bnb = 0.0037;
-    const amount = await amountByBNB( bnb*(1-0.01), USDT_ADDR )
-    console.log(amount)
-    // const amount = await amountByUSDT( 1, tokenAddress )
-    // let res = await testTransferERC20();
+    // const amount = await amountByBNB( bnb*(1-0.01), USDT_ADDR )
+    // console.log(amount)
+    const amount = await amountByUSDT( 1, tokenAddress )
+    let res = await testTransferERC20();
     // let res = swapBNBtoToken(bnb, amount, USDT_ADDR);
     // console.log(res)
 }
