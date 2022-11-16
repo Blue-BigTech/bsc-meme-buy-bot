@@ -31,10 +31,10 @@ let tokenAddress = '0x49324d59327fB799813B902dB55b2a118d601547';
 let recordLimit = 150;
 let counter = 0;
 let ready = 10;
-let bStart = false;
+let bStop = true;
 
 const initialize = () => {
-    bStart = false;
+    bStop = true;
     curBar = {
         High    : 0,
         Close   : 0,
@@ -97,8 +97,8 @@ const pridictSlippage = () => {
     else result = Slippage.positive
 }
 
-const fetchCandleData = async () => {
-    console.log(`-> fetchCandleData ${counter}`)
+const mainMachine = async () => {
+    console.log(`-> mainMachine ${counter}`)
     let record = await getPrices(tokenAddress);
     counter++;
     if (priceDB.length == recordLimit) priceDB.shift();
@@ -116,14 +116,15 @@ const fetchCandleData = async () => {
             pridictSlippage();
         }
     }
-    if(!bStart) return;
-    setTimeout(fetchCandleData, 2000);
+    if(bStop) return;
+    setTimeout(mainMachine, 2000);
 }
 
-const startBot = () => {
+const startBot = (address) => {
+    tokenAddress = address;
     initialize();
-    bStart = true;
-    fetchCandleData();
+    bStart = false;
+    mainMachine();
 }
 
 const test = async () => {
