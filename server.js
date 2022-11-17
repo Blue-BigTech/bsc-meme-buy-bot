@@ -38,7 +38,8 @@ app.listen(port, () => console.log(`Listening on port ${port}`));
 
 let params = {
   coinSymbol : 'BNB',
-  totalCoin : 70,
+  totalUSD : 20000,
+  USDPerTx : 1000,
   priceThreshold : 0,
   slippage : 5,
 }

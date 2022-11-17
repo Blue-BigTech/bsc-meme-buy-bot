@@ -1,7 +1,28 @@
 global.ColorType = Object.freeze({'green' : 0, 'red' : 1, 'none' : 2});
 global.Slippage = Object.freeze({'negative' : 0, 'positive' : 1});
+global.BNB = 0;
+global.USDT = 1;
+global.BOSS = 2;
 global.USDTBNBFEE = 0.0025;
 global.BNBBOSSFEE = 0.0025;
+
+global.BOSS_DATA = {
+    'taxFee' : 0,
+    'liquidityFee' : 0,
+    'maxTxAmount' : 0
+};
+
+global.BNBPrice = 0;
+global.coinSymbol = '';
+global.coinAddr = '';
+global.totalUSD = 0;
+global.USDPerTx = 0;
+global.priceThreshold = 0;
+global.slippageTolerance = 0;
+
+global.initPriceImpact = 0;
+global.initAmountOut = 0;
+global.initAmountOutMin = 0;
 
 //BSC Mainnet
 global.PANCKAE_ADDR='0x10ED43C718714eb63d5aA57B78B54704E256024E';

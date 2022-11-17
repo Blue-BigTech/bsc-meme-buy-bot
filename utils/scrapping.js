@@ -12,31 +12,34 @@ const scrapData = async (tokenIn, tokenOut, amountIn) => {
         await page.goto(url, {
             waitUntil: 'load',
         });
-        const understandSelector = '#__next > div.sc-318d5b1d-0.bfzTId.appear > div.sc-b492d839-0.sc-7630ff66-3.dkezcQ.hMiWhv > div.sc-b492d839-1.sc-32d5f017-0.sc-7630ff66-2.DtkAv.fOPopv.dUKQkf > div > div > div.sc-b492d839-1.sc-32d5f017-0.gEMDyZ.jdlnRz > div > input';
-        const importSelector = '#__next > div.sc-318d5b1d-0.bfzTId.appear > div.sc-b492d839-0.sc-7630ff66-3.dkezcQ.hMiWhv > div.sc-b492d839-1.sc-32d5f017-0.sc-7630ff66-2.DtkAv.fOPopv.dUKQkf > div > div > div.sc-b492d839-1.sc-32d5f017-0.gEMDyZ.jdlnRz > button';
-        await page.waitForSelector(understandSelector);
+        const understandSelector = '//*[@id="__next"]/div[1]/div[2]/div[2]/div/div/div[3]/div/input';
+        const importSelector = '//*[@id="__next"]/div[1]/div[2]/div[2]/div/div/div[3]/button';
+        let elHandle = await page.waitForXPath(understandSelector);
         await page.waitForTimeout(500);
-        await page.click(understandSelector);
-        await page.waitForSelector(importSelector);
-        await page.click(importSelector);  
-        const inputSelector = '#swap-currency-input > div.sc-18ab1c73-3.gLZifk > label > div.sc-18ab1c73-2.kfJsyf > input';
-        await page.waitForSelector(inputSelector);
-        await page.type(inputSelector, amountIn.toString());
-        const impactSelector = '#__next > div.sc-80277dc0-0.leLMTT.ggzm1z0._1nzuaz71yo._1nzuaz71zq > div.sc-b492d839-1.sc-80277dc0-4.ikybOA.dzJiXf > div > div > div.sc-b492d839-1.sc-32d5f017-0.gSuloB.ieaVLn > div.sc-b492d839-1.sc-32d5f017-0.gEMDyZ.jMqaHv > div > div > div > div > div.sc-ddb625d1-0.ikiZiJ > div > div > div:nth-child(2) > div:nth-child(2)';
-        await page.waitForSelector(impactSelector);
-        impactPercent = await page.evaluate(() => {
-            return document.querySelector('#__next > div.sc-80277dc0-0.leLMTT.ggzm1z0._1nzuaz71yo._1nzuaz71zq > div.sc-b492d839-1.sc-80277dc0-4.ikybOA.dzJiXf > div > div > div.sc-b492d839-1.sc-32d5f017-0.gSuloB.ieaVLn > div.sc-b492d839-1.sc-32d5f017-0.gEMDyZ.jMqaHv > div > div > div > div > div.sc-ddb625d1-0.ikiZiJ > div > div > div:nth-child(2) > div:nth-child(2)').innerText;
-        });
-        const outputSelector = '#swap-currency-output > div.sc-18ab1c73-3.gLZifk > label > div.sc-18ab1c73-2.kfJsyf > input';
-        await page.waitForSelector(outputSelector);
-        amountOut = await page.evaluate(() => {
-            return document.querySelector('#swap-currency-output > div.sc-18ab1c73-3.gLZifk > label > div.sc-18ab1c73-2.kfJsyf > input').value;
-        });
-        const outputMinSelector = '#__next > div.sc-80277dc0-0.leLMTT.ggzm1z0._1nzuaz71yo._1nzuaz71zq > div.sc-b492d839-1.sc-80277dc0-4.ikybOA.dzJiXf > div > div > div.sc-b492d839-1.sc-32d5f017-0.gSuloB.ieaVLn > div.sc-b492d839-1.sc-32d5f017-0.gEMDyZ.jMqaHv > div > div > div > div > div.sc-ddb625d1-0.ikiZiJ > div > div > div:nth-child(1) > div:nth-child(2) > div';
-        await page.waitForSelector(outputMinSelector);
-        amountOutMin = await page.evaluate(() => {
-            return document.querySelector('#__next > div.sc-80277dc0-0.leLMTT.ggzm1z0._1nzuaz71yo._1nzuaz71zq > div.sc-b492d839-1.sc-80277dc0-4.ikybOA.dzJiXf > div > div > div.sc-b492d839-1.sc-32d5f017-0.gSuloB.ieaVLn > div.sc-b492d839-1.sc-32d5f017-0.gEMDyZ.jMqaHv > div > div > div > div > div.sc-ddb625d1-0.ikiZiJ > div > div > div:nth-child(1) > div:nth-child(2) > div').innerText;
-        });
+        await elHandle.click();
+        elHandle = await page.waitForXPath(importSelector);
+        await elHandle.click();
+
+        const inputSelector = '//*[@id="swap-currency-input"]/div[2]/label/div[1]/input';
+        await page.waitForXPath(inputSelector);
+        elHandle = await page.$x(inputSelector);
+        await elHandle[0].type(amountIn.toString());
+
+        const impactSelector = '//*[@id="__next"]/div[1]/div[3]/div/div/div[1]/div[2]/div/div/div/div/div[4]/div/div/div[2]/div[2]';
+        await page.waitForXPath(impactSelector);
+        elHandle = await page.$x(impactSelector);
+        impactPercent = await page.evaluate(el => el.innerHTML, elHandle[0])
+
+        const outputSelector = '//*[@id="swap-currency-output"]/div[2]/label/div[1]/input';
+        elHandle = await page.waitForXPath(outputSelector);
+        amountOut = await (await elHandle.getProperty('value')).toString();
+
+        const outMinSelector = '//*[@id="__next"]/div[1]/div[3]/div/div/div[1]/div[2]/div/div/div/div/div[4]/div/div/div[1]/div[2]/div';
+        await page.waitForXPath(outMinSelector);
+        elHandle = await page.$x(outMinSelector);
+        amountOutMin = await page.evaluate(el => el.innerHTML, elHandle[0])
+
+        amountOut = amountOut.substr((amountOut.indexOf(':')+1));
         impactPercent = impactPercent.substr(0, impactPercent.length-1);
         amountOutMin = amountOutMin.substr(0, amountOutMin.indexOf(' '));
     }catch(e){

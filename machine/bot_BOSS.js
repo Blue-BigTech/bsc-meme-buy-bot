@@ -8,22 +8,14 @@ const { startBot, test } = require('./bot.js')
 const tokenAddr = '0x49324d59327fB799813B902dB55b2a118d601547';
 const tokenAbi = JSON.parse(fs.readFileSync('abi/BOSS/abi.json','utf-8'));
 
-var coinSymbol = '';
-var coinAddr = '';
-var totalCoin = 0;
-var priceThreshold = 0;
-var slippageTolerance = 0;
-var taxFee = 0;
-var liquidityFee = 0;
-var maxTxAmount = 0;
-var BNBPrice = 0;
-
-var priceImpact = 0;
-var amountOut = 0;
-
-var initPriceImpact = 0;
-var initAmountOut = 0;
-var initAmountOutMin = 0;
+// var coinSymbol = '';
+// var coinAddr = '';
+// var totalCoin = 0;
+// var priceThreshold = 0;
+// var slippageTolerance = 0;
+// var taxFee = 0;
+// var liquidityFee = 0;
+// var maxTxAmount = 0;
 
 const web3 = new Web3(RPC_URL);
 
@@ -36,9 +28,9 @@ const startBoss = async (params) => {
     initAmountOut = data.AmountOut;
     initAmountOutMin = data.amountOutMin;
     
-    taxFee = await getTaxFee();
-    liquidityFee = await getLiquidityFee();
-    maxTxAmount = await getMaxTaxAmount();
+    BOSS_DATA.taxFee = await getTaxFee();
+    BOSS_DATA.liquidityFee = await getLiquidityFee();
+    BOSS_DATA.maxTxAmount = await getMaxTaxAmount();
     printInitialData();
     console.log("After 10 sec bot will start running! You can stop it to press keyboard <Ctrl + C>");
     setTimeout(runMachine, 10000);
@@ -62,7 +54,8 @@ async function getMaxTaxAmount(){
 const setMainParams = async (params) => {
     coinSymbol = params.coinSymbol;
     coinAddr = coinSymbol == 'BNB' ? BNB_ADDR : USDT_ADDR;
-    totalCoin = params.totalCoin;
+    totalUSD = params.totalUSD;
+    USDPerTx = params.USDPerTx;
     priceThreshold = params.priceThreshold;
     let data = await getPrices(tokenAddr);
     if(priceThreshold == 0){
@@ -78,21 +71,22 @@ const printInitialData = () => {
     console.log(`${coinSymbol} -> BOSS`);
     console.log(`${coinSymbol} : ${coinAddr}`);
     console.log(`BOSS : ${tokenAddr}`);
-    console.log(`TotalAmount : ${totalCoin} ${coinSymbol}`);
+    console.log(`TotalAmount : ${totalUSD / BNBPrice} ${coinSymbol}`);
+    console.log(`AmountPerTx : ${USDPerTx / BNBPrice} ${coinSymbol}`);
     console.log(`BOSS Price Threshold : ${priceThreshold} ${coinSymbol}`);
     console.log(`Price Impact : ${initPriceImpact}%`);
     console.log(`Slippage Tolerance : ${slippageTolerance}%`);
     console.log(`Max Amount of BOSS(Pancake) : ${initAmountOut}`);
     console.log(`Min Amount of BOSS(Pancake) : ${initAmountOutMin}`);
-    console.log(`BOSS TaxFee : ${taxFee}%`);
-    console.log(`BOSS LiquidityFee : ${liquidityFee}%`);
-    console.log(`BOSS MaxTxAmount : ${maxTxAmount}`);
+    console.log(`BOSS TaxFee : ${BOSS_DATA.taxFee}%`);
+    console.log(`BOSS LiquidityFee : ${BOSS_DATA.liquidityFee}%`);
+    console.log(`BOSS MaxTxAmount : ${BOSS_DATA.maxTxAmount}`);
     console.log("*****************************************************************************");
 }
 
 const runMachine = () => {
     console.log("start++++++++++");
-    startBot(tokenAddr);
+    startBot(BNB, BOSS, tokenAddr);
 }
 
 module.exports = {

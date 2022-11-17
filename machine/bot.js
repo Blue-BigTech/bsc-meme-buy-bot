@@ -1,9 +1,9 @@
 const { getPrices, calcBNBPrice, amountByBNB, amountByUSDT } = require('../api/tokenPriceAPI.js');
 const { testTransferERC20, swapBNBtoToken } = require('../api/buyToken');
+const { manager } = require('./manager');
 
-// const ColorType = Object.freeze({'green' : 0, 'red' : 1, 'none' : 2});
-// const Slippage = Object.freeze({'negative' : 0, 'positive' : 1});
-
+let parent = null;
+let coin = null;
 let curBar = {
     High    : 0,
     Close   : 0,
@@ -28,18 +28,17 @@ let tokenPrices = {
 let priceDB = [];
 let candleStickDB = [];
 let tokenAddress = '0x49324d59327fB799813B902dB55b2a118d601547';
-let recordLimit = 150;
+let recordLimit = 25;
 let counter = 0;
-let ready = 10;
 let bStop = true;
-
+let bFirst = true;
 const initialize = () => {
     bStop = true;
     curBar = {
         High    : 0,
         Close   : 0,
         Open    : 0,
-        Low     : 0,
+        Low     : 10000,
         Color   : ColorType.none
     };
     prevBar = {
@@ -51,79 +50,100 @@ const initialize = () => {
     };
     priceDB = [];
     candleStickDB = [];
-    ready = 10;
     counter = 0;
 }
 
-const changeCandleStick = (price) => {
-    console.log("  -> changeCandleStick")
-    if(counter == 1){
-        curBar.Open = (prevBar.Open + prevBar.Close) / 2
+const changeCandleStick = (price, bClose = false) => {
+    if(bClose){
+        curBar.Close = price;
     }
+    if(curBar.Open == 0){
+        curBar.Open = price;
+    }
+    curBar.Low = curBar.Low < price ? curBar.Low : price;
     curBar.High = curBar.High > price ? curBar.High : price;
-    if(curBar.Low == 0) {
-        curBar.Low = price;
-    } else {
-        curBar.Low = curBar.Low < price ? curBar.Low : price;
-    }
-    curBar.High = Math.max(curBar.High, curBar.Open, curBar.Close);  
-    curBar.Close = curBar.Close == 0 ? price : curBar.Close;
-    curBar.Low = Math.min(curBar.Low, curBar.Open, curBar.Close);    
-    curBar.Close = (curBar.Open + curBar.High + curBar.Low + curBar.Close) / 4;
 }
 
 const makeCandleStick = () => {
-    console.log("  -> makeCandleStick");
+    if(!bFirst){
+        h = curBar.High; c = curBar.Close; o = curBar.Open; l = curBar.Low;
+        curBar.Close = (o + h + l + c)/4;
+        curBar.Open = (prevBar.Open + prevBar.Close)/2;
+        curBar.High = Math.max(h,o,c);
+        curBar.Low = Math.min(l,o,c);
+    }
+    bFirst = false;
     curBar.Color = curBar.Close >= curBar.Open ? ColorType.green : ColorType.red
     prevBar.High    = curBar.High;
     prevBar.Close   = curBar.Close;
     prevBar.Open    = curBar.Open;
     prevBar.Low     = curBar.Low;
     prevBar.Color   = curBar.Color;
-    candleStickDB.push({
+    const rec = {
         h: curBar.High, 
         c: curBar.Close, 
         o: curBar.Open, 
         l: curBar.Low,
-        color : curBar.Close >= curBar.Open ? ColorType.green : ColorType.red
-    });
-    if (candleStickDB.length == recordLimit/10) candleStickDB.shift();
-    console.log(curBar)
+        col : curBar.Color
+    };
+    candleStickDB.push(JSON.stringify(rec));
+    console.log(curBar);
+    curBar = {
+        High    : 0,
+        Close   : 0,
+        Open    : 0,
+        Low     : 10000,
+        Color   : ColorType.none
+    };
+    
+    if (candleStickDB.length == recordLimit) candleStickDB.shift();
 }
 
 const pridictSlippage = () => {
-    let result = null;
-    if(curBar.Close >= curBar.Open) result = Slippage.negative;
-    else result = Slippage.positive
+    const last = candleStickDB.length;
+    return JSON.parse(candleStickDB[last-1]).col;
 }
 
 const mainMachine = async () => {
-    console.log(`-> mainMachine ${counter}`)
     let record = await getPrices(tokenAddress);
     counter++;
     if (priceDB.length == recordLimit) priceDB.shift();
     priceDB.push(record);
-    changeCandleStick(record.INUSD);
-
-    let limit = recordLimit;
-    if(ready > 0) limit /= 30;
-
-    if(counter === limit) {
-        ready--;
+    // let price = coin === BNB ? record.INBNB : record.INUSD;
+    let price = record.INUSD;
+    // console.log("PRICE : " + parseFloat(price).toFixed(13));
+    if(counter === recordLimit) {
+        changeCandleStick(price, true);
         counter = 0;
         makeCandleStick();
-        if(ready <= 0) {
-            pridictSlippage();
+        switch(parent){
+            case BOSS:
+                let params = {
+                    slippage : pridictSlippage(),
+
+                }
+                manager(params);
+                break;
         }
+    }else{
+        changeCandleStick(price);
     }
+
     if(bStop) return;
-    setTimeout(mainMachine, 2000);
+    setTimeout(mainMachine, 1000);
 }
 
-const startBot = (address) => {
-    tokenAddress = address;
+const startBot = (_coin, _parent, _tokenAddress) => {
+    coin = _coin;
+    parent = _parent;
+    tokenAddress = _tokenAddress;
+
+    console.log(coin);
+    console.log(parent);
+    console.log(tokenAddress);
+
     initialize();
-    bStart = false;
+    bStop = false;
     mainMachine();
 }
 

@@ -42,7 +42,6 @@ async function getDecimals( tokenAddress ){
 
 async function amountByBNB( BNBToSell, tokenAddress ){
     let tokenDecimals = await getDecimals(tokenAddress);
-    // BNBToSell = setDecimals((BNBToSell * (1 - BNBBOSSFEE)).toString(), 18);
     BNBToSell = setDecimals(BNBToSell, 18);
 
     let amountOut;
