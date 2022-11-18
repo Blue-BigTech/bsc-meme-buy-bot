@@ -1,4 +1,4 @@
-global.ColorType = Object.freeze({'green' : 0, 'red' : 1, 'none' : 2});
+global.ColorType = Object.freeze({'green' : 1, 'red' : 0, 'none' : 2});
 global.Slippage = Object.freeze({'negative' : 0, 'positive' : 1});
 global.BNB = 0;
 global.USDT = 1;
@@ -21,10 +21,11 @@ global.USDPerTx = 0;
 global.priceThreshold = 0;
 global.slippageTolerance = 0;
 global.spentBNB = 0;
+global.deltaPrice = 1;
 global.initPriceImpact = 0;
 global.initAmountOut = 0;
 global.initAmountOutMin = 0;
-
+global.isBuying = false;
 global.LastTime = null;
 global.ElapsedTime = 0;
 

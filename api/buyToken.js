@@ -29,9 +29,12 @@ const testTransferERC20 = async () => {
     console.log(receipt);
 }
 
-const checkBNBBalance = async (ownerAddr, amounBNB) => {
+const checkBNBBalance = async (ownerAddr, amountBNB) => {
     const ethBalance = await ethBalanceOf(ownerAddr);
-    if(parseFloat(ethBalance.eth) >= (amounBNB + 1/BNBPrice)) return true;
+    console.log('checkBNBBalance');
+    console.log(ethBalance.eth);
+    console.log(amountBNB + 1/BNBPrice);
+    if(parseFloat(ethBalance.eth) >= (parseFloat(amountBNB) + 1/BNBPrice)) return true;
     else return false;
 }
 
@@ -42,14 +45,14 @@ const checkUSDTBalance = async (tokenAddr, ownerAddr, amounUSDT) => {
     let erc20Bal = await balanceOf(tokenAddr, ownerAddr);
     let decimals = await getDecimals(tokenAddr);
     erc20Bal = addDecimals(erc20Bal, decimals);
-    if(parseFloat(erc20Bal) < amounUSDT) return false;
+    if(parseFloat(erc20Bal) < parseFloat(amounUSDT)) return false;
     return bStatus;
 }
 
 const swapBNBtoToken = async (amountIn, amountOutMin, tokenAddress) => {
     if(!await checkBNBBalance(PUBLIC_KEY, amountIn)){
         console.log("ERROR : Insufficiant BNBs in your wallet");
-        return;
+        return {success : false};
     }
     const provider = new Provider(PRIVATE_KEY, RPC_URL);
     const web3 = new Web3(provider);
@@ -61,6 +64,7 @@ const swapBNBtoToken = async (amountIn, amountOutMin, tokenAddress) => {
     let deadline = web3.utils.toHex(Math.round(Date.now()/1000)+60*20);
     let res = null;
     try{
+        isBuying = true;
         let prevBal = await balanceOf(tokenAddress, PUBLIC_KEY);
         await pancakeRouter.methods.swapExactETHForTokens(amountOutMin, [BNB_ADDR, tokenAddress], PUBLIC_KEY, deadline).send({ from:PUBLIC_KEY, value:amountIn });
         let curBal = await balanceOf(tokenAddress, PUBLIC_KEY);
@@ -69,10 +73,12 @@ const swapBNBtoToken = async (amountIn, amountOutMin, tokenAddress) => {
             prevBal : prevBal,
             curBal : curBal
         };
+        isBuying = false;
     }catch(e){
         res = {
             success : false,
         };
+        isBuying = false;
     }
     return res;
 }

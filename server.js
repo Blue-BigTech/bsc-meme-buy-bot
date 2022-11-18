@@ -57,6 +57,7 @@ let params = {
 const main = () => {
   switch(TARGET_TOKEN) {
     case 'BOSS':
+      console.log("BOSS START!")
       startBoss(params);
       break;
   }

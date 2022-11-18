@@ -31,7 +31,7 @@ let tokenPrices = {
 // let priceDB = [];
 let candleStickDB = [];
 let tokenAddress = '0x49324d59327fB799813B902dB55b2a118d601547';
-let recordLimit = 25;
+let recordLimit = 15;
 let counter = 0;
 let bStop = true;
 let bFirst = true;
@@ -110,6 +110,7 @@ const pridictSlippage = () => {
 }
 
 const mainMachine = async () => {
+    console.log('call mainMachine')
     if(spentBNB >= (totalUSD/BNBPrice)) {
         console.log('All BOUGHT!');
         bStop = true;
@@ -131,7 +132,8 @@ const mainMachine = async () => {
                 let params = {
                     slippage : pridictSlippage(),
                 }
-                BOSS_Manager(params);
+                console.log('call BOSS_Manager')
+                await BOSS_Manager(params);
                 break;
         }
     }else{
@@ -139,7 +141,7 @@ const mainMachine = async () => {
     }
 
     if(bStop) return;
-    setTimeout(mainMachine, 1000);
+    setTimeout(mainMachine, 5000);
 }
 
 const startBot = (_coin, _parent, _tokenAddress) => {

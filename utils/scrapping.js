@@ -24,11 +24,12 @@ const scrapData = async (tokenIn, tokenOut, amountIn) => {
         await page.waitForXPath(inputSelector);
         elHandle = await page.$x(inputSelector);
         await elHandle[0].type(amountIn.toString());
+        await page.waitForTimeout(500);
 
         const impactSelector = '//*[@id="__next"]/div[1]/div[3]/div/div/div[1]/div[2]/div/div/div/div/div[4]/div/div/div[2]/div[2]';
         await page.waitForXPath(impactSelector);
         elHandle = await page.$x(impactSelector);
-        impactPercent = await page.evaluate(el => el.innerHTML, elHandle[0])
+        impactPercent = await page.evaluate(el => el.innerHTML, elHandle[0]);
 
         const outputSelector = '//*[@id="swap-currency-output"]/div[2]/label/div[1]/input';
         elHandle = await page.waitForXPath(outputSelector);
@@ -41,6 +42,7 @@ const scrapData = async (tokenIn, tokenOut, amountIn) => {
 
         amountOut = amountOut.substr((amountOut.indexOf(':')+1));
         impactPercent = impactPercent.substr(0, impactPercent.length-1);
+        if(impactPercent.indexOf('&lt;') == 0) impactPercent = impactPercent.substr(4);
         amountOutMin = amountOutMin.substr(0, amountOutMin.indexOf(' '));
     }catch(e){
         console.log(e);

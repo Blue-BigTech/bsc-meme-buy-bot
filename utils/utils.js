@@ -29,7 +29,7 @@ function printCurTime() {
 }
 
 function isElapsedTime() {
-    if(LastTime != null) return false;
+    if(LastTime == null) return true;
     let curTime = new Date();
     const timeDiff = curTime - LastTime; //in ms
     timeDiff /= 1000;

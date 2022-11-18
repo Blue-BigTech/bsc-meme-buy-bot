@@ -14,14 +14,14 @@ const BOSS_Manager = async (params) => {
     }
     let data = await getPrices(BOSS_DATA.address);
     const BossPrice = data.INUSD;//big or short than thresholdPrice
-    if(BossPrice > priceThreshold) {
+    if(BossPrice > (priceThreshold*(1+deltaPrice/100))) {
         console.log("   WARNING : BOSS price is more expensive than threshold price");
         return;
     }
     let inAddr = coinSymbol == 'BNB' ? 'BNB' : USDT_ADDR;
     data = await scrapData(inAddr, BOSS_DATA.address, (USDPerTx/BNBPrice));
     const priceImpact = data.PriceImpact;//big or short than initPriceImpact
-    if(priceImpact > initPriceImpact) {
+    if(parseFloat(priceImpact) > parseFloat(initPriceImpact)) {
         console.log("   WARNING : Price impact is more dengerous than initial condition");
         return;
     }
@@ -29,8 +29,8 @@ const BOSS_Manager = async (params) => {
     console.log(`   BOSS Price : ${BossPrice} USD,  Threshold : ${priceThreshold} USD`);
     console.log(`   Slippage Tolerance : ${slippageTolerance}%`);
     console.log(`   Try to buy BOSS for ${USDPerTx}USD(${USDPerTx/BNBPrice})`);
-    let bnb = USDPerTx/BNBPrice;
-    let amount = getAmountsBOSSFromBNB(bnb);
+    let bnb = parseFloat(USDPerTx/BNBPrice).toFixed(6);
+    let amount = await getAmountsBOSSFromBNB(bnb);
     // let res = swapBNBtoToken(bnb, amount, USDT_ADDR);
     // console.log(res)
     // console.log(amount);

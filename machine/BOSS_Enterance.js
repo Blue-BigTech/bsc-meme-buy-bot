@@ -66,7 +66,7 @@ const printInitialData = () => {
     console.log(`AmountPerTx : ${USDPerTx / BNBPrice} ${coinSymbol}`);
     console.log(`SecondsPerTx : ${ElapsedTime}s`);
     console.log(`BOSS Price Threshold : ${priceThreshold} USD`);
-    console.log(`Price Impact : ${initPriceImpact}%`);
+    console.log(`Price Impact : ${initPriceImpact} %`);
     console.log(`Slippage Tolerance : ${slippageTolerance}%`);
     console.log(`Max Amount of BOSS(Pancake) : ${initAmountOut}`);
     console.log(`Min Amount of BOSS(Pancake) : ${initAmountOutMin}`);
@@ -77,7 +77,7 @@ const printInitialData = () => {
 }
 
 const runMachine = () => {
-    console.log("START!");
+    console.log("BOT START!");
     startBot(BNB, BOSS, tokenAddr);
 }
 
