@@ -15,7 +15,6 @@ Install server and client dependencies
 
 ```
 npm i
-
 ```
 
 To start the server and client at the same time (from the root of the project)
@@ -24,6 +23,13 @@ To start the server and client at the same time (from the root of the project)
 npm run server
 ```
 ## Input ENV before running server
+```
+NODE_ENV=development
+PORT=5000
+PRIVATE_KEY=85edec2.......................................b91f724
+PUBLIC_KEY=0x5E3040.............F383f5f9E3c6905
+```
+
 TARGET_TOKEN          : token symbol to buy.
 EX : 
 ```
