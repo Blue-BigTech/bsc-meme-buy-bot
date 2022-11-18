@@ -1,10 +1,16 @@
-const {BN} = require('web3-utils');
-const { getPrices, getDecimals, amountByBNB, amountByUSDT, ethBalanceOf } = require('../api/tokenPriceAPI.js');
-const { swapBNBtoToken, swapUSDTtoToken } = require('../api/buyToken');
+const { 
+    getPrices, 
+    // getDecimals, 
+    // amountByBNB, 
+    // amountByUSDT, 
+    // ethBalanceOf 
+} = require('../api/tokenPriceAPI.js');
 const { BOSS_Manager } = require('./manager');
-const { addDecimals } = require('../utils/utils.js');
+// const { swapBNBtoToken, swapUSDTtoToken } = require('../api/buyToken');
+// const { addDecimals } = require('../utils/utils.js');
+// const {PUBLIC_KEY} = process.env;
+// const {BN} = require('web3-utils');
 
-const {PUBLIC_KEY} = process.env;
 let parent = null;
 let coin = null;
 let curBar = {
@@ -110,7 +116,7 @@ const pridictSlippage = () => {
 }
 
 const mainMachine = async () => {
-    console.log('call mainMachine')
+    // console.log('call mainMachine')
     if(spentBNB >= (totalUSD/BNBPrice)) {
         console.log('All BOUGHT!');
         bStop = true;
@@ -132,7 +138,7 @@ const mainMachine = async () => {
                 let params = {
                     slippage : pridictSlippage(),
                 }
-                console.log('call BOSS_Manager')
+                // console.log('call BOSS_Manager')
                 await BOSS_Manager(params);
                 break;
         }

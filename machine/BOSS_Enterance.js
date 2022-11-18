@@ -13,7 +13,7 @@ const startBoss = async (params) => {
     await setMainParams(params);
 
     let inAddr = coinSymbol == 'BNB' ? 'BNB' : USDT_ADDR;
-    let data = await scrapData(inAddr, tokenAddr, parseFloat(USDPerTx/BNBPrice).toFixed(3));
+    let data = await scrapData(inAddr, tokenAddr, parseFloat(totalUSD/BNBPrice).toFixed(3));
     initPriceImpact = data.PriceImpact;
     initAmountOut = data.AmountOut;
     initAmountOutMin = data.amountOutMin;
@@ -66,7 +66,7 @@ const printInitialData = () => {
     console.log(`AmountPerTx : ${USDPerTx / BNBPrice} ${coinSymbol}`);
     console.log(`SecondsPerTx : ${ElapsedTime}s`);
     console.log(`BOSS Price Threshold : ${priceThreshold} USD`);
-    console.log(`Price Impact : ${initPriceImpact} %`);
+    // console.log(`Price Impact : ${initPriceImpact} %`);
     console.log(`Slippage Tolerance : ${slippageTolerance}%`);
     console.log(`Max Amount of BOSS(Pancake) : ${initAmountOut}`);
     console.log(`Min Amount of BOSS(Pancake) : ${initAmountOutMin}`);

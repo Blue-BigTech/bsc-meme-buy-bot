@@ -1,3 +1,4 @@
+const {BN} = require('web3-utils');
 const { getPrices, amountByBNB, amountByUSDT  } = require('../api/tokenPriceAPI');
 const { scrapData } = require('../utils/scrapping');
 const { testTransferERC20, swapBNBtoToken } = require('../api/buyToken');
@@ -18,22 +19,21 @@ const BOSS_Manager = async (params) => {
         console.log("   WARNING : BOSS price is more expensive than threshold price");
         return;
     }
-    let inAddr = coinSymbol == 'BNB' ? 'BNB' : USDT_ADDR;
-    data = await scrapData(inAddr, BOSS_DATA.address, (USDPerTx/BNBPrice));
-    const priceImpact = data.PriceImpact;//big or short than initPriceImpact
-    if(parseFloat(priceImpact) > parseFloat(initPriceImpact)) {
-        console.log("   WARNING : Price impact is more dengerous than initial condition");
-        return;
-    }
+    // let inAddr = coinSymbol == 'BNB' ? 'BNB' : USDT_ADDR;
+    // data = await scrapData(inAddr, BOSS_DATA.address, (USDPerTx/BNBPrice));
+    // const priceImpact = data.PriceImpact;//big or short than initPriceImpact
+    // if(parseFloat(priceImpact) > parseFloat(initPriceImpact)) {
+    //     console.log("   WARNING : Price impact is more dengerous than initial condition");
+    //     return;
+    // }
+
+    let bnb = parseFloat(USDPerTx/BNBPrice).toFixed(6);
     console.log("*********************************************");
     console.log(`   BOSS Price : ${BossPrice} USD,  Threshold : ${priceThreshold} USD`);
     console.log(`   Slippage Tolerance : ${slippageTolerance}%`);
-    console.log(`   Try to buy BOSS for ${USDPerTx}USD(${USDPerTx/BNBPrice})`);
-    let bnb = parseFloat(USDPerTx/BNBPrice).toFixed(6);
-    let amount = await getAmountsBOSSFromBNB(bnb);
-    // let res = swapBNBtoToken(bnb, amount, USDT_ADDR);
-    // console.log(res)
-    // console.log(amount);
+    console.log(`   Try to buy BOSS for ${USDPerTx}USD(${bnb})`);
+    let amount = await getAmountsTokenFromBNB(bnb, BOSS_DATA.address, BNBBOSSFEE);
+
     let res = await swapBNBtoToken(bnb, amount, BOSS_DATA.address);
     if(res.success){
         console.log('********SUCCESS********');
@@ -48,10 +48,10 @@ const BOSS_Manager = async (params) => {
     }
 }
 
-const getAmountsBOSSFromBNB = async (amounBNB) => {
-    let realBNB = 0;
-    realBNB = amounBNB * (1 - BNBBOSSFEE);
-    realBNB = realBNB * (1 - slippageTolerance/100);
+const getAmountsTokenFromBNB = async (amountBNB, tokenAddr, provideFee) => {
+    // amountBNB = amountBNB * (1 - provideFee);
+    amountBNB = amountBNB * (1 - slippageTolerance/100);
+    console.log("Slipage Tolerance : " + slippageTolerance);
     // realBNB = realBNB * (1 - BOSS_DATA.taxFee/100);
     // realBNB = realBNB * (1 - BOSS_DATA.liquidityFee/100);
 
@@ -60,7 +60,7 @@ const getAmountsBOSSFromBNB = async (amounBNB) => {
     // let priceImpact = data.PriceImpact;
     // realBNB = realBNB * (1 - priceImpact/100);
 
-    return await amountByBNB( realBNB, USDT_ADDR )
+    return await amountByBNB( amountBNB, tokenAddr )
 }
 
 module.exports = {

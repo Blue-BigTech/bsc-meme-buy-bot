@@ -25,7 +25,6 @@ global.deltaPrice = 1;
 global.initPriceImpact = 0;
 global.initAmountOut = 0;
 global.initAmountOutMin = 0;
-global.isBuying = false;
 global.LastTime = null;
 global.ElapsedTime = 0;
 
