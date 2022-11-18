@@ -15,28 +15,28 @@ Install server and client dependencies
 
 ```
 npm i
-cd client
-npm i
+
 ```
 
 To start the server and client at the same time (from the root of the project)
 
 ```
-npm run dev
+npm run server
 ```
+## Input ENV before running server
+NODE_ENV=development
+PORT=5000
+PRIVATE_KEY=85edec27e2fbe378c1d95ed4025a1c6cabfac589f9263cf17740f59d5b91f724
+PUBLIC_KEY=0x5E30405B0Bc855B6c3A0281FcF383f5f9E3c6905
 
-Running the production build on localhost. This will create a production build, then Node will serve the app on http://localhost:5000
 
-```
-NODE_ENV=production npm run dev:server
-```
 
-## How this works
 
-The key to use an Express backend with a project created with `create-react-app` is on using a **proxy**. We have a _proxy_ entry in `client/package.json`
+TIME_STEP_SEC=600
 
-```
-"proxy": "http://localhost:5000/"
-```
-
-This tells Webpack development server to proxy our API requests to our API server, given that our Express server is running on **localhost:5000**
+TARGET_TOKEN          : token symbol to buy.   EX : TARGET_TOKEN=BOSS
+TOTAL_USD             : total amount for buying as USD. EX : TOTAL_USD=20000
+USD_PER_TX            : amount USD per tx as USD. EX : USD_PER_TX=1000
+PRICE_THRESHOLD       : threshold price of target token. if it sets as 0, this will be set as the price when the server runs. EX : PRICE_THRESHOLD=0
+SLIPPAGE_TOLERANCE    : slippage tolerance for meme token. this must be minimum 12%. EX : SLIPPAGE_TOLERANCE=12
+TIME_STEP_SEC         : Server will retry to buy token after this time period. It represents by seconds. EX : TIME_STEP_SEC=600

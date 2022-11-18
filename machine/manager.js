@@ -1,10 +1,14 @@
 const {BN} = require('web3-utils');
-const { getPrices, amountByBNB, amountByUSDT  } = require('../api/tokenPriceAPI');
+const { getPrices, getDecimals, amountByBNB, amountByUSDT  } = require('../api/tokenPriceAPI');
 const { scrapData } = require('../utils/scrapping');
 const { testTransferERC20, swapBNBtoToken } = require('../api/buyToken');
 const { isElapsedTime } = require('../utils/utils');
+const {addDecimals} = require('../utils/utils');
+
+var LastTime = null;
+
 const BOSS_Manager = async (params) => {
-    if(!isElapsedTime) {
+    if(!isElapsedTime(LastTime)) {
         console.log("   WARNING : WAIT MORE SECONDS!");
         return;
     }
@@ -40,9 +44,10 @@ const BOSS_Manager = async (params) => {
         let amountToken = ((new BN(res.curBal)).sub(new BN(res.prevBal))).toString();
         let decimals = await getDecimals(BOSS_DATA.address);
         amountToken = addDecimals(amountToken, decimals);
-        console.log(`BOSS Amount : ${amountToken}`)
+        console.log(`BOSS Amount : ${amountToken}`);
         LastTime = new Date();
         spentBNB += bnb;
+        console.log(`Spent BNB for Buying : ${spentBNB}`);
     }else{
         console.log('********FAILED********');
     }

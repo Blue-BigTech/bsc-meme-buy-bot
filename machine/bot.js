@@ -60,7 +60,6 @@ const initialize = () => {
     priceDB = [];
     candleStickDB = [];
     counter = 0;
-    LastTime = null;
     spentBNB = 0;
 }
 
