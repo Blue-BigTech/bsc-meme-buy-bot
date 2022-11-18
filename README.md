@@ -24,16 +24,6 @@ To start the server and client at the same time (from the root of the project)
 npm run server
 ```
 ## Input ENV before running server
-NODE_ENV=development
-PORT=5000
-PRIVATE_KEY=85edec..........................................59d5b91f724
-PUBLIC_KEY=0x5E30405B0Bc855B6c3A0281FcF383f5f9E3c6905
-
-
-
-
-TIME_STEP_SEC=600
-
 TARGET_TOKEN          : token symbol to buy.   EX : TARGET_TOKEN=BOSS
 TOTAL_USD             : total amount for buying as USD. EX : TOTAL_USD=20000
 USD_PER_TX            : amount USD per tx as USD. EX : USD_PER_TX=1000
