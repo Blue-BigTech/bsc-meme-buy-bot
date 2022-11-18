@@ -26,7 +26,7 @@ npm run server
 ## Input ENV before running server
 NODE_ENV=development
 PORT=5000
-PRIVATE_KEY=85edec27e2fbe378c1d95ed4025a1c6cabfac589f9263cf17740f59d5b91f724
+PRIVATE_KEY=85edec..........................................59d5b91f724
 PUBLIC_KEY=0x5E30405B0Bc855B6c3A0281FcF383f5f9E3c6905
 
 
