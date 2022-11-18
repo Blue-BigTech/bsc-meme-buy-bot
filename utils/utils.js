@@ -28,8 +28,17 @@ function printCurTime() {
     console.log(today)
 }
 
+function isElapsedTime() {
+    if(LastTime != null) return false;
+    let curTime = new Date();
+    const timeDiff = curTime - LastTime; //in ms
+    timeDiff /= 1000;
+    if(Math.round(timeDiff) < ElapsedTime) return false;
+    return true;
+}
 module.exports = {
     setDecimals,
     addDecimals,
+    isElapsedTime,
     printCurTime
 }

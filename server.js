@@ -36,14 +36,31 @@ app.post('/api/world', (req, res) => {
 // }
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
+const {
+  TARGET_TOKEN,
+  TOTAL_USD,
+  USD_PER_TX,
+  PRICE_THRESHOLD,
+  SLIPPAGE_TOLERANCE,
+  TIME_STEP_SEC
+} = process.env;
 
 let params = {
   coinSymbol : 'BNB',
-  totalUSD : 20000,
-  USDPerTx : 1000,
-  priceThreshold : 0,
-  slippage : 5,
+  totalUSD : TOTAL_USD,
+  USDPerTx : USD_PER_TX,
+  priceThreshold : PRICE_THRESHOLD,
+  slippage : SLIPPAGE_TOLERANCE,
+  timeStep : TIME_STEP_SEC,
 }
 
-// startBoss(params);
-test()
+const main = () => {
+  switch(TARGET_TOKEN) {
+    case 'BOSS':
+      startBoss(params);
+      break;
+  }
+};
+
+main();
+// test()

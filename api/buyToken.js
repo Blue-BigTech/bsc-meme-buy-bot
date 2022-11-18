@@ -45,6 +45,7 @@ const checkUSDTBalance = async (tokenAddr, ownerAddr, amounUSDT) => {
     if(parseFloat(erc20Bal) < amounUSDT) return false;
     return bStatus;
 }
+
 const swapBNBtoToken = async (amountIn, amountOutMin, tokenAddress) => {
     if(!await checkBNBBalance(PUBLIC_KEY, amountIn)){
         console.log("ERROR : Insufficiant BNBs in your wallet");

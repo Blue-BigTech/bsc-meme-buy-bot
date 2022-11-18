@@ -53,6 +53,7 @@ const setMainParams = async (params) => {
     }
     BNBPrice = parseFloat(data.BNB).toFixed(3);
     slippageTolerance = params.slippage;
+    ElapsedTime = params.timeStep;
 }
 
 const printInitialData = () => {
@@ -63,6 +64,7 @@ const printInitialData = () => {
     console.log(`BOSS : ${tokenAddr}`);
     console.log(`TotalAmount : ${totalUSD / BNBPrice} ${coinSymbol}`);
     console.log(`AmountPerTx : ${USDPerTx / BNBPrice} ${coinSymbol}`);
+    console.log(`SecondsPerTx : ${ElapsedTime}s`);
     console.log(`BOSS Price Threshold : ${priceThreshold} USD`);
     console.log(`Price Impact : ${initPriceImpact}%`);
     console.log(`Slippage Tolerance : ${slippageTolerance}%`);

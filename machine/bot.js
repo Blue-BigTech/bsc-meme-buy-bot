@@ -54,6 +54,8 @@ const initialize = () => {
     priceDB = [];
     candleStickDB = [];
     counter = 0;
+    LastTime = null;
+    spentBNB = 0;
 }
 
 const changeCandleStick = (price, bClose = false) => {
@@ -108,6 +110,11 @@ const pridictSlippage = () => {
 }
 
 const mainMachine = async () => {
+    if(spentBNB >= (totalUSD/BNBPrice)) {
+        console.log('All BOUGHT!');
+        bStop = true;
+        return;
+    }
     let record = await getPrices(tokenAddress);
     counter++;
     // if (priceDB.length == recordLimit) priceDB.shift();

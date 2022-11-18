@@ -20,10 +20,13 @@ global.totalUSD = 0;
 global.USDPerTx = 0;
 global.priceThreshold = 0;
 global.slippageTolerance = 0;
-
+global.spentBNB = 0;
 global.initPriceImpact = 0;
 global.initAmountOut = 0;
 global.initAmountOutMin = 0;
+
+global.LastTime = null;
+global.ElapsedTime = 0;
 
 //BSC Mainnet
 global.PANCKAE_ADDR='0x10ED43C718714eb63d5aA57B78B54704E256024E';

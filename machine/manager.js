@@ -1,8 +1,12 @@
 const { getPrices, amountByBNB, amountByUSDT  } = require('../api/tokenPriceAPI');
 const { scrapData } = require('../utils/scrapping');
 const { testTransferERC20, swapBNBtoToken } = require('../api/buyToken');
-
+const { isElapsedTime } = require('../utils/utils');
 const BOSS_Manager = async (params) => {
+    if(!isElapsedTime) {
+        console.log("   WARNING : WAIT MORE SECONDS!");
+        return;
+    }
     const slippageMode = params.slippage;//negative or positive
     if(slippageMode == 1) {
         console.log("   WARNING : Positive Slippage for BOSS");
@@ -25,15 +29,29 @@ const BOSS_Manager = async (params) => {
     console.log(`   BOSS Price : ${BossPrice} USD,  Threshold : ${priceThreshold} USD`);
     console.log(`   Slippage Tolerance : ${slippageTolerance}%`);
     console.log(`   Try to buy BOSS for ${USDPerTx}USD(${USDPerTx/BNBPrice})`);
-    let amount = getAmountsBOSSFromBNB(USDPerTx/BNBPrice);
+    let bnb = USDPerTx/BNBPrice;
+    let amount = getAmountsBOSSFromBNB(bnb);
     // let res = swapBNBtoToken(bnb, amount, USDT_ADDR);
     // console.log(res)
+    // console.log(amount);
+    let res = await swapBNBtoToken(bnb, amount, BOSS_DATA.address);
+    if(res.success){
+        console.log('********SUCCESS********');
+        let amountToken = ((new BN(res.curBal)).sub(new BN(res.prevBal))).toString();
+        let decimals = await getDecimals(BOSS_DATA.address);
+        amountToken = addDecimals(amountToken, decimals);
+        console.log(`BOSS Amount : ${amountToken}`)
+        LastTime = new Date();
+        spentBNB += bnb;
+    }else{
+        console.log('********FAILED********');
+    }
 }
 
 const getAmountsBOSSFromBNB = async (amounBNB) => {
     let realBNB = 0;
-    realBNB = amounBNB * (1 - slippageTolerance/100);
-    // realBNB = realBNB * (1 - BNBBOSSFEE);
+    realBNB = amounBNB * (1 - BNBBOSSFEE);
+    realBNB = realBNB * (1 - slippageTolerance/100);
     // realBNB = realBNB * (1 - BOSS_DATA.taxFee/100);
     // realBNB = realBNB * (1 - BOSS_DATA.liquidityFee/100);
 
