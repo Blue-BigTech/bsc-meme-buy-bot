@@ -2,11 +2,12 @@ const fs = require('fs');
 const Web3 = require('web3');
 const {BN} = require('web3-utils');
 const Provider = require('@truffle/hdwallet-provider');
-const { setDecimals } = require('../utils/utils');
+const { setDecimals, addDecimals } = require('../utils/utils');
 const { getPrices,
         calcBNBPrice,
         getDecimals,
         balanceOf,
+        ethBalanceOf,
         amountByBNB,
         amountByUSDT} = require('./tokenPriceAPI');
 const {
@@ -28,7 +29,27 @@ const testTransferERC20 = async () => {
     console.log(receipt);
 }
 
+const checkBNBBalance = async (ownerAddr, amounBNB) => {
+    const ethBalance = await ethBalanceOf(ownerAddr);
+    if(parseFloat(ethBalance.eth) >= (amounBNB + 1/BNBPrice)) return true;
+    else return false;
+}
+
+const checkUSDTBalance = async (tokenAddr, ownerAddr, amounUSDT) => {
+    const ethBalance = await ethBalanceOf(ownerAddr);
+    let bStatus = true;
+    if(parseFloat(ethBalance.eth) < (1/BNBPrice)) return false;
+    let erc20Bal = await balanceOf(tokenAddr, ownerAddr);
+    let decimals = await getDecimals(tokenAddr);
+    erc20Bal = addDecimals(erc20Bal, decimals);
+    if(parseFloat(erc20Bal) < amounUSDT) return false;
+    return bStatus;
+}
 const swapBNBtoToken = async (amountIn, amountOutMin, tokenAddress) => {
+    if(!await checkBNBBalance(PUBLIC_KEY, amountIn)){
+        console.log("ERROR : Insufficiant BNBs in your wallet");
+        return;
+    }
     const provider = new Provider(PRIVATE_KEY, RPC_URL);
     const web3 = new Web3(provider);
     const decimals = await getDecimals(tokenAddress);
@@ -56,6 +77,10 @@ const swapBNBtoToken = async (amountIn, amountOutMin, tokenAddress) => {
 }
 
 const swapUSDTtoToken = async (amountIn, amountOutMin, tokenAddress) => {
+    if(!await checkUSDTBalance(tokenAddress, PUBLIC_KEY, amountIn)) {
+        console.log('Insufficiant BNB or USDT in your wallet.')
+        return;
+    }
     const provider = new Provider(PRIVATE_KEY, RPC_URL);
     const web3 = new Web3(provider);
     let decimals = await getDecimals(USDT_ADDR);

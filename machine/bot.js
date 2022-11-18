@@ -150,8 +150,8 @@ const startBot = (_coin, _parent, _tokenAddress) => {
 }
 
 const test = async () => {
-    console.log(await ethBalanceOf(PUBLIC_KEY));
-    // let bnb = 0.0037;
+    // console.log(await ethBalanceOf(PUBLIC_KEY));
+    // let bnb = 1;
     // let real = bnb*(1-0.12);
     // const amount = await amountByBNB( real, BOSS_DATA.address )
     // console.log(amount);
