@@ -3,7 +3,8 @@ require('./utils/global');
 const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
-const {startBoss} = require('./machine/bot_BOSS');
+const {startBoss} = require('./machine/BOSS_Enterance');
+const {test} = require('./machine/bot');
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -23,16 +24,16 @@ app.post('/api/world', (req, res) => {
   );
 });
 
-if (process.env.NODE_ENV === 'production') {
-  console.log('PRODUCTION')
-  // Serve any static files
-  app.use(express.static(path.join(__dirname, 'client/build')));
+// if (process.env.NODE_ENV === 'production') {
+//   console.log('PRODUCTION')
+//   // Serve any static files
+//   app.use(express.static(path.join(__dirname, 'client/build')));
 
-  // Handle React routing, return all requests to React app
-  app.get('*', function(req, res) {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
-  });
-}
+//   // Handle React routing, return all requests to React app
+//   app.get('*', function(req, res) {
+//     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+//   });
+// }
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
 
@@ -43,4 +44,6 @@ let params = {
   priceThreshold : 0,
   slippage : 5,
 }
-startBoss(params);
+
+// startBoss(params);
+test()

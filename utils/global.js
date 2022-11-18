@@ -7,9 +7,10 @@ global.USDTBNBFEE = 0.0025;
 global.BNBBOSSFEE = 0.0025;
 
 global.BOSS_DATA = {
-    'taxFee' : 0,
-    'liquidityFee' : 0,
-    'maxTxAmount' : 0
+    address : '0x49324d59327fB799813B902dB55b2a118d601547',
+    taxFee : 0,
+    liquidityFee : 0,
+    maxTxAmount : 0
 };
 
 global.BNBPrice = 0;

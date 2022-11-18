@@ -7,6 +7,22 @@ let tokenAbi = JSON.parse(fs.readFileSync('abi/erc20.json','utf-8'));
 
 const web3 = new Web3(RPC_URL);
 
+async function balanceOf(tokenAddr, ownerAddr) {
+    let tokenRouter = await new web3.eth.Contract( tokenAbi, tokenAddr );
+    let balance = await tokenRouter.methods.balanceOf(ownerAddr).call();
+    console.log(balance);
+    return balance;
+}
+
+async function ethBalanceOf(ownerAddr){
+    let balanceWei = await web3.eth.getBalance(ownerAddr); //Will give value in.
+    let balanceEth = Web3.utils.fromWei(balanceWei, 'ether');
+    return {
+        wei : balanceWei,
+        eth : balanceEth
+    }
+}
+
 async function calcSell( tokensToSell, tokenAddr){
     let tokenRouter = await new web3.eth.Contract( tokenAbi, tokenAddr );
     let tokenDecimals = await tokenRouter.methods.decimals().call();
@@ -56,16 +72,28 @@ async function amountByBNB( BNBToSell, tokenAddress ){
 }
 
 async function amountByUSDT( USDToSell, tokenAddress ){
-    USDToSell = web3.utils.toWei((USDToSell * (1 - USDTBNBFEE)).toString(), "ether") ;
+    let tokenDecimals = await getDecimals(tokenAddress);
+    USDToSell = setDecimals(USDToSell, 18);
+
     let amountOut;
     try {
         let router = await new web3.eth.Contract( pancakeSwapAbi, PANCKAE_ADDR );
-        amountOut = await router.methods.getAmountsOut(USDToSell, [USDT_ADDR, BNB_ADDR]).call();
-        amountOut =  web3.utils.fromWei(amountOut[1]);
+        amountOut = await router.methods.getAmountsOut(USDToSell, [USDT_ADDR, tokenAddress]).call();
+        amountOut = addDecimals(amountOut[1], tokenDecimals);
     } catch (error) {}
+    
     if(!amountOut) return 0;
-    amountOut = (parseFloat(amountOut)).toFixed(7);
-    return await amountByBNB(amountOut, tokenAddress);
+    return amountOut;
+    // USDToSell = web3.utils.toWei((USDToSell * (1 - USDTBNBFEE)).toString(), "ether") ;
+    // let amountOut;
+    // try {
+    //     let router = await new web3.eth.Contract( pancakeSwapAbi, PANCKAE_ADDR );
+    //     amountOut = await router.methods.getAmountsOut(USDToSell, [USDT_ADDR, BNB_ADDR]).call();
+    //     amountOut =  web3.utils.fromWei(amountOut[1]);
+    // } catch (error) {}
+    // if(!amountOut) return 0;
+    // amountOut = (parseFloat(amountOut)).toFixed(7);
+    // return await amountByBNB(amountOut, tokenAddress);
 }
 
 const getPrices = async function(tokenAddress){
@@ -87,6 +115,8 @@ module.exports = {
     getPrices,
     calcBNBPrice,
     getDecimals,
+    balanceOf,
+    ethBalanceOf,
     amountByBNB,
     amountByUSDT
 }

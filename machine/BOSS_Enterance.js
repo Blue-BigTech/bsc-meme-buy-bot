@@ -5,25 +5,15 @@ const { scrapData } = require('../utils/scrapping');
 const { getPrices } = require('../api/tokenPriceAPI');
 const { startBot, test } = require('./bot.js')
 
-const tokenAddr = '0x49324d59327fB799813B902dB55b2a118d601547';
+const tokenAddr = BOSS_DATA.address;
 const tokenAbi = JSON.parse(fs.readFileSync('abi/BOSS/abi.json','utf-8'));
-
-// var coinSymbol = '';
-// var coinAddr = '';
-// var totalCoin = 0;
-// var priceThreshold = 0;
-// var slippageTolerance = 0;
-// var taxFee = 0;
-// var liquidityFee = 0;
-// var maxTxAmount = 0;
-
 const web3 = new Web3(RPC_URL);
 
 const startBoss = async (params) => {
     await setMainParams(params);
 
     let inAddr = coinSymbol == 'BNB' ? 'BNB' : USDT_ADDR;
-    let data = await scrapData(inAddr, tokenAddr, totalCoin);
+    let data = await scrapData(inAddr, tokenAddr, parseFloat(USDPerTx/BNBPrice).toFixed(3));
     initPriceImpact = data.PriceImpact;
     initAmountOut = data.AmountOut;
     initAmountOutMin = data.amountOutMin;
@@ -59,7 +49,7 @@ const setMainParams = async (params) => {
     priceThreshold = params.priceThreshold;
     let data = await getPrices(tokenAddr);
     if(priceThreshold == 0){
-        priceThreshold = coinSymbol == 'BNB' ? data.INBNB : data.INUSD;
+        priceThreshold = data.INUSD;
     }
     BNBPrice = parseFloat(data.BNB).toFixed(3);
     slippageTolerance = params.slippage;
@@ -73,7 +63,7 @@ const printInitialData = () => {
     console.log(`BOSS : ${tokenAddr}`);
     console.log(`TotalAmount : ${totalUSD / BNBPrice} ${coinSymbol}`);
     console.log(`AmountPerTx : ${USDPerTx / BNBPrice} ${coinSymbol}`);
-    console.log(`BOSS Price Threshold : ${priceThreshold} ${coinSymbol}`);
+    console.log(`BOSS Price Threshold : ${priceThreshold} USD`);
     console.log(`Price Impact : ${initPriceImpact}%`);
     console.log(`Slippage Tolerance : ${slippageTolerance}%`);
     console.log(`Max Amount of BOSS(Pancake) : ${initAmountOut}`);
@@ -85,7 +75,7 @@ const printInitialData = () => {
 }
 
 const runMachine = () => {
-    console.log("start++++++++++");
+    console.log("START!");
     startBot(BNB, BOSS, tokenAddr);
 }
 
