@@ -46,7 +46,7 @@ const BOSS_Manager = async (params) => {
         amountToken = addDecimals(amountToken, decimals);
         console.log(`BOSS Amount : ${amountToken}`);
         LastTime = new Date();
-        spentBNB += bnb;
+        spentBNB = parseFloat(spentBNB) + parseFloat(bnb);
         console.log(`Spent BNB for Buying : ${spentBNB}`);
     }else{
         console.log('********FAILED********');

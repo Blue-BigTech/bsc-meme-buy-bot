@@ -31,8 +31,8 @@ const testTransferERC20 = async () => {
 
 const checkBNBBalance = async (ownerAddr, amountBNB) => {
     const ethBalance = await ethBalanceOf(ownerAddr);
-    console.log('checkBNBBalance');
-    console.log(ethBalance.eth);
+    // console.log('checkBNBBalance');
+    // console.log(ethBalance.eth);
     console.log(parseFloat(amountBNB) + 1/BNBPrice);
     if(parseFloat(ethBalance.eth) >= (parseFloat(amountBNB) + 1/BNBPrice)) return true;
     else return false;
