@@ -19,16 +19,32 @@ function MainPage() {
   const [addr, setAddr] = React.useState('0x49324d59327fB799813B902dB55b2a118d601547');
   const [dec, setDecimal] = React.useState(18);
   const [currency, setCurrency] = React.useState('BNB');
-  const [amount, setAmount] = React.useState(1);
+  const [total, setTotal] = React.useState(10);
+  const [perTx, setPerTx] = React.useState(2);
+  const [slipTol, setSlipTol] = React.useState(12);
+  const [timeStep, setTimeStep] = React.useState(600);
+
   const symbolChange = (event) => {
     setSymbol(event.target.value);
   };
   const currencyChange = (event) => {
     setCurrency(event.target.value);
   };
-  const amountChange = (event) => {
+  const amountTotal = (event) => {
     console.log(parseInt(event.target.value))
-    setAmount(parseInt(event.target.value));
+    setTotal(parseInt(event.target.value));
+  };
+  const amountPerTx = (event) => {
+    console.log(parseInt(event.target.value))
+    setPerTx(parseInt(event.target.value));
+  };
+  const slippageChange = (event) => {
+    console.log(parseInt(event.target.value))
+    setSlipTol(parseInt(event.target.value));
+  };
+  const timeChange = (event) => {
+    console.log(parseInt(event.target.value))
+    setTimeStep(parseInt(event.target.value));
   };
   return (
     <ThemeProvider theme={theme}>
@@ -73,7 +89,7 @@ function MainPage() {
                   // required
                   id="tokenDec"
                   name="tokenDec"
-                  label="Decimals"
+                  label="Dec"
                   fullWidth
                   // autoComplete="shipping address-line1"
                   variant="standard"
@@ -85,13 +101,12 @@ function MainPage() {
             <Grid item xs={12} sm={12}>
               <Divider variant="fullWidth" color=""/>
             </Grid>
-            {/* <br/><br/><br/> */}
             <Grid item xs={12} sm={12}>
               <Typography variant="h6" gutterBottom>
-                Select Currency
+                Setting
               </Typography>
             </Grid>
-            <Grid item xs={6} sm={6}>
+            <Grid item xs={12} sm={12}>
               <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
                 <InputLabel id="simple-select-currency">Currency</InputLabel>
                 <Select
@@ -101,17 +116,75 @@ function MainPage() {
                   onChange={currencyChange}
                 >
                   <MenuItem value={'BNB'}>BNB</MenuItem>
-                  <MenuItem value={'USDT'}>USDT</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
             <Grid item xs={6} sm={6}>
               <TextField 
                 required
-                id="outlined-Amount" 
-                label="Amount" 
-                variant="outlined" 
-                onChange={amountChange}
+                id="outlined-Total" 
+                label="Total($)" 
+                variant="outlined"
+                type="number"
+                value={total}
+                inputProps={{
+                  // maxLength: 5,
+                  // min : 0,
+                  max : 30000,
+                  step : "100",
+                }}
+                onChange={amountTotal}
+              />
+            </Grid>
+            <Grid item xs={6} sm={6}>
+              <TextField 
+                required
+                id="outlined-PerTx" 
+                label="PerTx($)" 
+                variant="outlined"
+                type="number"
+                value={perTx}
+                inputProps={{
+                  // maxLength: 5,
+                  // min : 0,
+                  max : 30000,
+                  step : "100",
+                }}
+                onChange={amountPerTx}
+              />
+            </Grid>
+            <Grid item xs={6} sm={6}>
+              <TextField 
+                required
+                id="outlined-slippage" 
+                label="SlippageTolerance(%)" 
+                variant="outlined"
+                type="number"
+                inputProps={{
+                  // maxLength: 5,
+                  // min : 0,
+                  max : 100,
+                  step : "1",
+                }}
+                value = {slipTol}
+                onChange={slippageChange}
+              />
+            </Grid>
+            <Grid item xs={6} sm={6}>
+              <TextField 
+                required
+                id="outlined-timestep" 
+                label="TimeStep(S)" 
+                variant="outlined"
+                type="number"
+                inputProps={{
+                  // maxLength: 5,
+                  // min : 0,
+                  max : 86400,
+                  step : "10",
+                }}
+                value = {timeStep}
+                onChange={timeChange}
               />
             </Grid>
           </Grid>

@@ -116,7 +116,7 @@ const pridictSlippage = () => {
 
 const mainMachine = async () => {
     // console.log('call mainMachine')
-    if((spentBNB*1.05) >= (totalUSD/BNBPrice)) {
+    if((parseFloat(spentBNB)*1.05) >= (totalUSD/BNBPrice)) {
         console.log('All BOUGHT!');
         bStop = true;
         return;
