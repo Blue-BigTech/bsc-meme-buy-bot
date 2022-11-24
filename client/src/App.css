@@ -1,8 +1,8 @@
 #root{
   height: 100%;
   max-width: 480px;
-  padding-top: 1vh;
-  padding-bottom: 1vh;
+  padding-top: 5vh;
+  padding-bottom: 5vh;
   margin: auto;
   background-color: white;
 }

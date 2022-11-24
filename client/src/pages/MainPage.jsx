@@ -14,6 +14,7 @@ import Divider from '@mui/material/Divider';
 import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import Box from '@mui/material/Box';
 
 const theme = createTheme();
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -31,6 +32,8 @@ function MainPage() {
   const [slipTol, setSlipTol] = React.useState(12);
   const [priceTol, setPriceTol] = React.useState(10);
   const [timeStep, setTimeStep] = React.useState(600);
+  const [spentBNB, setSpentBNB] = React.useState(20);
+  const [amountToken, setAmountToken] = React.useState("987654321");
   const [tempKey, setTempKey] = React.useState("");
   const [privateKey, setPrivKey] = React.useState("");
   const [publicKey, setPubKey] = React.useState("0x49324d59327fB799813B902dB55b2a118d601547");
@@ -38,7 +41,10 @@ function MainPage() {
   const [successMsg, setSuccess] = React.useState('SUCCESS MSG');
   const [bFailed, setbFailed] = React.useState(false);
   const [failedMsg, setFailed] = React.useState('FAILED MSG');
-  
+  const [bStart, setbStart] = React.useState(false);
+  const [bSlippage, setbSlippage] = React.useState(false);
+    
+  /////////////// Functions //////////////////
   const openSuccess = () => {
     setSuccess('SUCCESS MSG');
     setbSuccess(true);
@@ -60,7 +66,13 @@ function MainPage() {
     }
     setbFailed(false);
   };
-
+  const startBot = () => {
+    setbStart(true);
+  }
+  const stopBot = () => {
+    setbStart(false);
+  }
+  /////////////// Handels //////////////////
   const symbolChange = (event) => {
     setSymbol(event.target.value);
   };
@@ -100,6 +112,7 @@ function MainPage() {
   };
   const onClickStart = () => {
     // openSuccess();
+    startBot();
     openFailed();
     console.log("Start BOT");
   };
@@ -324,6 +337,49 @@ function MainPage() {
                 START
               </Button>
             </Grid>
+          {bStart &&
+            <>
+              <Grid item xs={12} sm={12}>
+                <Divider variant="fullWidth" color=""/>
+              </Grid>
+              <Grid item xs={3} sm={3}>
+                <TextField
+                    readOnly
+                    id="outline-spent-bnb"
+                    name="spent-bnb"
+                    label="Spent BNB"
+                    fullWidth 
+                    size="small"
+                    variant="filled"
+                    value={spentBNB}
+                  />
+              </Grid>
+              <Grid item xs={9} sm={9}>
+                <TextField
+                    readOnly
+                    id="outline-amount-token"
+                    name="amount-token"
+                    label="Amount of Token"
+                    fullWidth 
+                    size="small"
+                    variant="filled"
+                    value={amountToken}
+                  />
+              </Grid>
+              <Grid item xs={12} sm={12}>
+                {bSlippage &&
+                  <Box bgcolor="green">
+                    <Typography variant="h5" color="white">POSITIVE SLIPPAGE</Typography>
+                  </Box>
+                }
+                {!bSlippage &&
+                  <Box bgcolor="red">
+                    <Typography variant="h5" color="white">NEGATIVE SLIPPAGE</Typography>
+                  </Box>
+                }
+              </Grid>
+            </>
+          }
           </Grid>
           <Snackbar open={bSuccess} autoHideDuration={6000} onClose={closeSuccess}>
             <Alert onClose={closeSuccess} severity="success" sx={{ width: '100%' }}>
