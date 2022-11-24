@@ -15,36 +15,109 @@ import Button from '@mui/material/Button';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
+import LinearProgress from '@mui/material/LinearProgress';
+import socketClient  from "socket.io-client";
 
 const theme = createTheme();
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
+
+const SERVER = "http://localhost:5000";
+var socket;
+
 function MainPage() {
   const [symbol, setSymbol] = React.useState('BOSS');
-  const [addr, setAddr] = React.useState('0x49324d59327fB799813B902dB55b2a118d601547');
+  const [addr, setAddr] = React.useState('0xabcd1234');
   const [dec, setDecimal] = React.useState(18);
   const [currency, setCurrency] = React.useState('BNB');
-  const [tokenPrice, setTokenPrice] = React.useState('');
+  const [tokenPrice, setTokenPrice] = React.useState('0.0');
   const [currencyPrice, setCurrencyPrice] = React.useState('');
-  const [total, setTotal] = React.useState(10);
-  const [perTx, setPerTx] = React.useState(2);
+  const [total, setTotal] = React.useState(20);
+  const [perTx, setPerTx] = React.useState(1);
   const [slipTol, setSlipTol] = React.useState(12);
   const [priceTol, setPriceTol] = React.useState(10);
-  const [timeStep, setTimeStep] = React.useState(600);
-  const [spentBNB, setSpentBNB] = React.useState(20);
-  const [amountToken, setAmountToken] = React.useState("987654321");
+  const [timeStep, setTimeStep] = React.useState(3600);
+  const [spentBNB, setSpentBNB] = React.useState(0);
+  const [amountToken, setAmountToken] = React.useState("0");
   const [tempKey, setTempKey] = React.useState("");
-  const [privateKey, setPrivKey] = React.useState("");
-  const [publicKey, setPubKey] = React.useState("0x49324d59327fB799813B902dB55b2a118d601547");
+  const [privateKey, setPrivKey] = React.useState('');
+  const [publicKey, setPubKey] = React.useState('');
   const [bSuccess, setbSuccess] = React.useState(false);
   const [successMsg, setSuccess] = React.useState('SUCCESS MSG');
   const [bFailed, setbFailed] = React.useState(false);
   const [failedMsg, setFailed] = React.useState('FAILED MSG');
   const [bStart, setbStart] = React.useState(false);
+  const [bStopping, setbStopping] = React.useState(false);
+  const [bShow, setbShow] = React.useState(false);
   const [bSlippage, setbSlippage] = React.useState(false);
-    
+  const [ready, setReady] = React.useState(0);
+  
+  React.useEffect(() => {
+    // if (performance.navigation.type === 1) {
+    //   alert( "This page is reloaded" );
+    // } else {
+    //   alert( "This page is not reloaded");
+    // }
+    configureSocket();
+    setSymbol('BOSS');
+    socket.emit('SYMBOL_INFO',  symbol);
+  }, []);
   /////////////// Functions //////////////////
+  const configureSocket = () => {
+    var mySocket = socketClient (SERVER);
+    mySocket.on('connection', (msg) => {
+      if(msg == null)
+        console.log(`connected to back-end`);
+    });
+    mySocket.on('SYMBOL_INFO', data => {
+      setAddr(data.address);
+      setDecimal(data.decimals);
+      setTokenPrice(data.price);
+      setCurrencyPrice(data.bnb);
+    });
+    mySocket.on('bot-ready', (data) => {
+      setReady(2);
+    });
+    mySocket.on('bot-warning', (data) => {
+      const msg = data.msg;
+      const slippage = data.slippage;
+      const price = data.price;
+      if(msg != ''){
+        setFailed(msg);
+        openFailed();
+      }
+      setbSlippage(slippage);
+      if(price != 0) setTokenPrice(price);
+    });
+    mySocket.on('bot-status', (data) => {
+      const status = data.status;
+      if(status){
+       setSpentBNB(data.bnb); 
+       setAmountToken(data.amount);
+      }
+    });
+    mySocket.on('msg-success', (data) => {
+      setSuccess(data);
+      openSuccess();
+    });
+    mySocket.on('msg-failed', (data) => {
+      setFailed(data);
+      openFailed();
+    });
+    mySocket.on('bot-end', (data) => {
+      setAmountToken(data.amount);
+      setSuccess("All BOUGHT!");
+      openSuccess();
+    });
+    mySocket.on('stop-bot', (data) => {
+      setbStopping(false);
+      setbStart(false);
+      setbShow(false);
+    });    
+    socket = mySocket;  
+  }
   const openSuccess = () => {
     setSuccess('SUCCESS MSG');
     setbSuccess(true);
@@ -57,7 +130,6 @@ function MainPage() {
   };
 
   const openFailed = () => {
-    setFailed('FAILED MSG');
     setbFailed(true);
   };
   const closeFailed = (event, reason) => {
@@ -66,55 +138,114 @@ function MainPage() {
     }
     setbFailed(false);
   };
-  const startBot = () => {
+  const startBot = async () => {
+    if(privateKey == '') {
+      setFailed('Please set the Private Key!')
+      openFailed();
+      return;
+    }
+    if(publicKey == '') {
+      setFailed('Please set the Public Key!')
+      openFailed();
+      return;
+    }
+    if(total <= 0) {
+      setFailed('Total must be greater than 0')
+      openFailed();
+      return;
+    }
+    if(perTx <= 0 || perTx > total) {
+      setFailed('Please reset PerTx value')
+      openFailed();
+      return;
+    }
+    if(timeStep < 60) {
+      setFailed('TimeStep must be greater than 60s');
+      openFailed();
+      return;
+    }
+    if(slipTol < 12) {
+      setFailed('Silppage Tolerance must be greater than 12%');
+      openFailed();
+    }   
     setbStart(true);
+    setbShow(true);
+    socket.emit('start-bot', {
+      privkey : privateKey,
+      publickey: publicKey,
+      target : symbol,
+      coinSymbol : currency,
+      totalUSD : total,
+      USDPerTx : perTx,
+      priceThreshold : 0,
+      slippage : slipTol,
+      timeStep : timeStep
+    });
+    setReady(1);
   }
   const stopBot = () => {
-    setbStart(false);
+    setbStopping(true);
+    socket.emit('stop-bot', null);
   }
   /////////////// Handels //////////////////
   const symbolChange = (event) => {
+    socket.emit('SYMBOL_INFO',  event.target.value);
     setSymbol(event.target.value);
+    setbShow(false);
+    setReady(0);
   };
   const currencyChange = (event) => {
     setCurrency(event.target.value);
+    setbShow(false);
+    setReady(0);
   };
   const amountTotal = (event) => {
-    console.log(parseInt(event.target.value))
-    setTotal(parseInt(event.target.value));
+    setTotal(Math.abs(parseInt(event.target.value)));
+    setbShow(false);
+    setReady(0);
   };
   const amountPerTx = (event) => {
-    console.log(parseInt(event.target.value))
-    setPerTx(parseInt(event.target.value));
+    setPerTx(Math.abs(parseInt(event.target.value)));
+    setbShow(false);
+    setReady(0);
   };
   const slippageChange = (event) => {
-    console.log(parseInt(event.target.value))
-    setSlipTol(parseInt(event.target.value));
+    setSlipTol(Math.abs(parseInt(event.target.value)));
+    setbShow(false);
+    setReady(0);
   };
   const priceChange = (event) => {
-    console.log(parseInt(event.target.value))
-    setPriceTol(parseInt(event.target.value));
+    setPriceTol(Math.abs(parseInt(event.target.value)));
+    setbShow(false);
+    setReady(0);
   };
   const timeChange = (event) => {
-    console.log(parseInt(event.target.value))
-    setTimeStep(parseInt(event.target.value));
+    setTimeStep(Math.abs(parseInt(event.target.value)));
+    setbShow(false);
+    setReady(0);
   };
   const privateChange = (event) => {
     setTempKey(event.target.value);
+    setbShow(false);
+    setReady(0);
   };
   const onClickPrivKey = () => {
     setPrivKey(tempKey);
     setTempKey("Already set");
+    setbShow(false);
+    setReady(0);
   };
   const publicChange = (event) => {
     console.log(publicKey);
     setPubKey(event.target.value);
   };
   const onClickStart = () => {
-    // openSuccess();
     startBot();
-    openFailed();
     console.log("Start BOT");
+  };
+  const onClickStop = () => {
+    stopBot();
+    console.log("Stop BOT");
   };
   return (
     <ThemeProvider theme={theme}>
@@ -126,7 +257,7 @@ function MainPage() {
                 Target Token
               </Typography>
             </Grid>
-            <Grid item xs={6} sm={6}>
+            <Grid item xs={4} sm={4}>
               <FormControl variant="standard" sx={{ m: 1, minWidth: 120 }}>
                 <InputLabel id="simple-select-token" >Symbol</InputLabel>
                 <Select
@@ -141,12 +272,12 @@ function MainPage() {
             </Grid>
             {symbol !== '' &&
             <>
-              <Grid item xs={6} sm={6}>
+              <Grid item xs={8} sm={8}>
                   <TextField
                     readOnly
                     id="outline-token-price"
                     name="token-price"
-                    label="Token Price"
+                    label="Token Price($)"
                     fullWidth
                     // autoComplete="family-name"
                     variant="filled"
@@ -197,6 +328,7 @@ function MainPage() {
                   labelId="simple-select-currency"
                   id="simple-select-standard-currency"
                   value={currency}
+                  disabled={bStart}
                   onChange={currencyChange}
                 >
                   <MenuItem value={'BNB'}>BNB</MenuItem>
@@ -208,7 +340,7 @@ function MainPage() {
                   readOnly
                   id="outline-currency-price"
                   name="currency-price"
-                  label="Currency Price"
+                  label="Currency Price($)"
                   fullWidth 
                   // autoComplete="family-name"
                   variant="filled"
@@ -224,11 +356,12 @@ function MainPage() {
                 type="number"
                 size="small"
                 value={total}
+                disabled={bStart}
                 inputProps={{
                   // maxLength: 5,
                   // min : 0,
                   max : 30000,
-                  step : "100",
+                  step : "10",
                 }}
                 onChange={amountTotal}
               />
@@ -242,11 +375,12 @@ function MainPage() {
                 type="number"
                 size="small"
                 value={perTx}
+                disabled={bStart}
                 inputProps={{
                   // maxLength: 5,
                   // min : 0,
                   max : 30000,
-                  step : "100",
+                  step : "1",
                 }}
                 onChange={amountPerTx}
               />
@@ -259,6 +393,7 @@ function MainPage() {
                 variant="outlined"
                 type="number"
                 size="small"
+                disabled={bStart}
                 inputProps={{
                   // maxLength: 5,
                   // min : 0,
@@ -277,6 +412,7 @@ function MainPage() {
                 variant="outlined"
                 type="number"
                 size="small"
+                disabled={bStart}
                 inputProps={{
                   // maxLength: 5,
                   // min : 0,
@@ -295,6 +431,7 @@ function MainPage() {
                 variant="outlined"
                 type="number"
                 size="small"
+                disabled={bStart}
                 inputProps={{
                   max : 100,
                   step : "1",
@@ -311,6 +448,7 @@ function MainPage() {
                 label="Private Key" 
                 variant="outlined"
                 size="small"
+                disabled={bStart}
                 value={tempKey}
                 onChange={privateChange}
               />
@@ -328,65 +466,92 @@ function MainPage() {
                 label="Public Key" 
                 variant="outlined"
                 value={publicKey}
+                size="small"
+                disabled={bStart}
                 inputProps={{style: {fontSize: 15}}}
                 onChange={publicChange}
               />
             </Grid>
-            <Grid item xs={12} sm={12}>
-              <Button variant="contained" size="large" onClick={onClickStart}>
-                START
-              </Button>
+            {!bShow &&
+              <>
+                <Grid item xs={12} sm={12}>
+                  <Button variant="contained" size="large" onClick={onClickStart}>
+                    START
+                  </Button>
+                </Grid>
+              </>
+            }
+            {bShow &&
+              <>
+                <Grid item xs={12} sm={12}>
+                  <Button variant="contained" color="error" size="large" onClick={onClickStop} disabled={bStopping}>
+                    STOP
+                  </Button>
+                </Grid>
+                <Grid item xs={12} sm={12}>
+                  <Divider variant="fullWidth" color=""/>
+                </Grid>
+                {ready == 1 &&
+                <>
+                <Grid item xs={12} sm={12}>
+                  <Typography variant="h6">Data Loading...</Typography>
+                </Grid>
+                <Grid item xs={12} sm={12}>
+                  <CircularProgress />
+                </Grid>
+                </>
+                }
+                {ready == 2 &&
+                <>
+                  <Grid item xs={3} sm={3}>
+                    <TextField
+                        readOnly
+                        id="outline-spent-bnb"
+                        name="spent-bnb"
+                        label="Spent BNB"
+                        fullWidth 
+                        size="small"
+                        variant="filled"
+                        value={spentBNB}
+                      />
+                  </Grid>
+                  <Grid item xs={9} sm={9}>
+                    <TextField
+                        readOnly
+                        id="outline-amount-token"
+                        name="amount-token"
+                        label="Amount of Token"
+                        fullWidth 
+                        size="small"
+                        variant="filled"
+                        value={amountToken}
+                      />
+                  </Grid>
+                </>
+                }
+                <Grid item xs={12} sm={12}>
+                  {bSlippage && ready == 2 &&
+                    <>
+                      <LinearProgress color="success"/>
+                      <Typography variant="h6" color="green">POSITIVE SLIPPAGE</Typography>
+                    </>
+                  }
+                  {!bSlippage && ready == 2 &&
+                    <>
+                      <LinearProgress color="secondary"/>
+                      <Typography variant="h6" color="red">NEGATIVE SLIPPAGE</Typography>
+                    </>
+                  }
+                </Grid>
+              </>
+            }
             </Grid>
-          {bStart &&
-            <>
-              <Grid item xs={12} sm={12}>
-                <Divider variant="fullWidth" color=""/>
-              </Grid>
-              <Grid item xs={3} sm={3}>
-                <TextField
-                    readOnly
-                    id="outline-spent-bnb"
-                    name="spent-bnb"
-                    label="Spent BNB"
-                    fullWidth 
-                    size="small"
-                    variant="filled"
-                    value={spentBNB}
-                  />
-              </Grid>
-              <Grid item xs={9} sm={9}>
-                <TextField
-                    readOnly
-                    id="outline-amount-token"
-                    name="amount-token"
-                    label="Amount of Token"
-                    fullWidth 
-                    size="small"
-                    variant="filled"
-                    value={amountToken}
-                  />
-              </Grid>
-              <Grid item xs={12} sm={12}>
-                {bSlippage &&
-                  <Box bgcolor="green">
-                    <Typography variant="h5" color="white">POSITIVE SLIPPAGE</Typography>
-                  </Box>
-                }
-                {!bSlippage &&
-                  <Box bgcolor="red">
-                    <Typography variant="h5" color="white">NEGATIVE SLIPPAGE</Typography>
-                  </Box>
-                }
-              </Grid>
-            </>
-          }
-          </Grid>
-          <Snackbar open={bSuccess} autoHideDuration={6000} onClose={closeSuccess}>
+          <Snackbar open={bSuccess} autoHideDuration={4000} onClose={closeSuccess}>
             <Alert onClose={closeSuccess} severity="success" sx={{ width: '100%' }}>
               {successMsg}
             </Alert>
           </Snackbar>
-          <Snackbar open={bFailed} autoHideDuration={6000} onClose={closeFailed}>
+          <Snackbar open={bFailed} autoHideDuration={4000} onClose={closeFailed}>
             <Alert onClose={closeFailed} severity="error" sx={{ width: '100%' }}>
               {failedMsg}
             </Alert>

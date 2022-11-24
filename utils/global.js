@@ -26,7 +26,11 @@ global.initPriceImpact = 0;
 global.initAmountOut = 0;
 global.initAmountOutMin = 0;
 global.ElapsedTime = 0;
+global.bStop = true;
 
+global.SocketIO;
+global.PRIVATE_KEY;
+global.PUBLIC_KEY;
 //BSC Mainnet
 global.PANCKAE_ADDR='0x10ED43C718714eb63d5aA57B78B54704E256024E';
 global.RPC_URL='https://bsc-dataseed1.binance.org';

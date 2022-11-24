@@ -10,6 +10,8 @@ const { BOSS_Manager } = require('./manager');
 // const { addDecimals } = require('../utils/utils.js');
 // const {PUBLIC_KEY} = process.env;
 // const {BN} = require('web3-utils');
+const {getDecimals, balanceOf} = require('../api/tokenPriceAPI');
+const {addDecimals} = require('../utils/utils');
 
 let parent = null;
 let coin = null;
@@ -39,7 +41,6 @@ let candleStickDB = [];
 let tokenAddress = '0x49324d59327fB799813B902dB55b2a118d601547';
 let recordLimit = 15;
 let counter = 0;
-let bStop = true;
 let bFirst = true;
 const initialize = () => {
     bStop = true;
@@ -117,6 +118,12 @@ const pridictSlippage = () => {
 const mainMachine = async () => {
     // console.log('call mainMachine')
     if((parseFloat(spentBNB)*1.05) >= (totalUSD/BNBPrice)) {
+        let amountToken = balanceOf(tokenAddress, PUBLIC_KEY);
+        let decimals = getDecimals(tokenAddress);
+        amountToken = addDecimals(amountToken, decimals);
+        SocketIO.emit('bot-end', {
+            amount : amountToken
+        }); 
         console.log('All BOUGHT!');
         bStop = true;
         return;
@@ -145,7 +152,10 @@ const mainMachine = async () => {
         changeCandleStick(price);
     }
 
-    if(bStop) return;
+    if(bStop) {
+        SocketIO.emit('stop-bot', null);
+        return;
+    }
     setTimeout(mainMachine, 5000);
 }
 

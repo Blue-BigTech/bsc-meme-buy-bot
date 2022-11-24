@@ -9,20 +9,41 @@ var LastTime = null;
 
 const BOSS_Manager = async (params) => {
     if(!isElapsedTime(LastTime)) {
+        SocketIO.emit("bot-warning", {
+            msg : 'WAIT MORE SECONDS!',
+            slippage : false,
+            price : 0,
+        });
         console.log("   WARNING : WAIT MORE SECONDS!");
         return;
     }
     const slippageMode = params.slippage;//negative or positive
     if(slippageMode == 1) {
+        SocketIO.emit("bot-warning", {
+            msg : 'Positive Slippage for BOSS',
+            slippage : false,
+            price : 0,
+        });
         console.log("   WARNING : Positive Slippage for BOSS");
         return;
     }
     let data = await getPrices(BOSS_DATA.address);
     const BossPrice = data.INUSD;//big or short than thresholdPrice
     if(BossPrice > (priceThreshold*(1+deltaPrice/100))) {
+        SocketIO.emit("bot-warning", {
+            msg : 'BOSS is more expensive than threshold price',
+            slippage : true,
+            price : BossPrice,
+        });
         console.log("   WARNING : BOSS price is more expensive than threshold price");
         return;
     }
+    SocketIO.emit("bot-warning", {
+        msg : '',
+        slippage : true,
+        price : BossPrice,
+    });
+
     // let inAddr = coinSymbol == 'BNB' ? 'BNB' : USDT_ADDR;
     // data = await scrapData(inAddr, BOSS_DATA.address, (USDPerTx/BNBPrice));
     // const priceImpact = data.PriceImpact;//big or short than initPriceImpact
@@ -39,6 +60,9 @@ const BOSS_Manager = async (params) => {
     let amount = await getAmountsTokenFromBNB(bnb, BOSS_DATA.address, BNBBOSSFEE);
 
     let res = await swapBNBtoToken(bnb, amount, BOSS_DATA.address);
+    // let res = {
+    //     success : false
+    // }
     if(res.success){
         console.log('********SUCCESS********');
         let amountToken = ((new BN(res.curBal)).sub(new BN(res.prevBal))).toString();
@@ -48,8 +72,17 @@ const BOSS_Manager = async (params) => {
         LastTime = new Date();
         spentBNB = parseFloat(spentBNB) + parseFloat(bnb);
         console.log(`Spent BNB for Buying : ${spentBNB}`);
+        SocketIO.emit('bot-status', {
+            status : true,
+            bnb : spentBNB,
+            amount : amountToken,
+        });
+        SocketIO.emit('msg-success', 'Transaction success!');
     }else{
         console.log('********FAILED********');
+        SocketIO.emit('bot-status', {
+            status : false,
+        });
     }
 }
 

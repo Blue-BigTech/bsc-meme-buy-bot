@@ -3,7 +3,8 @@ const Web3 = require('web3');
 const {BN} = require('web3-utils');
 const { scrapData } = require('../utils/scrapping');
 const { getPrices } = require('../api/tokenPriceAPI');
-const { startBot, test } = require('./bot.js')
+const { startBot, test } = require('./bot.js');
+const { Socket } = require('socket.io');
 
 const tokenAddr = BOSS_DATA.address;
 const tokenAbi = JSON.parse(fs.readFileSync('abi/BOSS/abi.json','utf-8'));
@@ -22,8 +23,8 @@ const startBoss = async (params) => {
     BOSS_DATA.liquidityFee = await getLiquidityFee();
     BOSS_DATA.maxTxAmount = await getMaxTaxAmount();
     printInitialData();
-    console.log("After 10 sec bot will start running! You can stop it to press keyboard <Ctrl + C>");
-    setTimeout(runMachine, 10000);
+    SocketIO.emit('bot-ready', null);
+    setTimeout(runMachine, 500);
 }
 
 async function getTaxFee(){
@@ -81,6 +82,17 @@ const runMachine = () => {
     startBot(BNB, BOSS, tokenAddr);
 }
 
+const getTokenInfo = async () => {
+    let data = await getPrices(tokenAddr);
+    return {
+        address : tokenAddr,
+        decimals : 9,
+        price : data.INUSD,
+        bnb : data.BNB
+    }
+}
+
 module.exports = {
-    startBoss
+    startBoss,
+    getTokenInfo
 }

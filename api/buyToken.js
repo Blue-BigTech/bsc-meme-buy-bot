@@ -10,10 +10,10 @@ const { getPrices,
         ethBalanceOf,
         amountByBNB,
         amountByUSDT} = require('./tokenPriceAPI');
-const {
-    PRIVATE_KEY,
-    PUBLIC_KEY,
-} = process.env;
+// const {
+//     PRIVATE_KEY,
+//     PUBLIC_KEY,
+// } = process.env;
 
 let tokenAbi = JSON.parse(fs.readFileSync('abi/erc20.json','utf-8'));
 let pancakeAbi = JSON.parse(fs.readFileSync('abi/pancakeswap.json','utf-8'));
@@ -51,6 +51,7 @@ const checkUSDTBalance = async (tokenAddr, ownerAddr, amounUSDT) => {
 
 const swapBNBtoToken = async (amountIn, amountOutMin, tokenAddress) => {
     if(!await checkBNBBalance(PUBLIC_KEY, amountIn)){
+        SocketIO.emit('msg-failed', 'Insufficiant BNBs in your wallet');
         console.log("ERROR : Insufficiant BNBs in your wallet");
         return {success : false};
     }

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 
 import logo from './logo.svg';
 
@@ -6,12 +6,13 @@ import './App.css';
 
 import MainPage from './pages/MainPage';
 
-class App extends Component {
-  state = {
-    response: '',
-    post: '',
-    responseToPost: '',
-  };
+
+function App() {
+  // state = {
+  //   response: '',
+  //   post: '',
+  //   responseToPost: '',
+  // };
 
   // componentDidMount() {
   //   this.callApi()
@@ -42,24 +43,22 @@ class App extends Component {
   //   this.setState({ responseToPost: body });
   // };
 
-  render() {
-    return (
-      <div className="App">
-        {/* <form onSubmit={this.handleSubmit}>
-          <strong>Post to Server:</strong>
-          <input
-            type="text"
-            value={this.state.post}
-            onChange={e => this.setState({ post: e.target.value })}
-            />
-          <button type="submit">Submit</button>
-        </form>
-        <p>{this.state.response}</p>
-        <p>{this.state.responseToPost}</p> */}
-        <MainPage />
-      </div>
-    );
-  }
+  return (
+    <div className="App">
+      {/* <form onSubmit={this.handleSubmit}>
+        <strong>Post to Server:</strong>
+        <input
+          type="text"
+          value={this.state.post}
+          onChange={e => this.setState({ post: e.target.value })}
+          />
+        <button type="submit">Submit</button>
+      </form>
+      <p>{this.state.response}</p>
+      <p>{this.state.responseToPost}</p> */}
+      <MainPage />
+    </div>
+  );
 }
 
 export default App;
