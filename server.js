@@ -30,7 +30,6 @@ io.on('connection', (socket) => {
       socket.emit('SYMBOL_INFO', data);
     });
     socket.on('start-bot', param => {
-      console.log(param);
       SocketIO = socket;
       main(param.target, param);
     });

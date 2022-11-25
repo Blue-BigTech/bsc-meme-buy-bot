@@ -116,20 +116,19 @@ const pridictSlippage = () => {
 }
 
 const mainMachine = async () => {
-    // console.log('call mainMachine')
-    console.log('mainMachine0');
     if((parseFloat(spentBNB)*1.05) >= (totalUSD/BNBPrice)) {
-        let amountToken = balanceOf(tokenAddress, PUBLIC_KEY);
-        let decimals = getDecimals(tokenAddress);
+        let amountToken = await balanceOf(tokenAddress, PUBLIC_KEY);
+        let decimals = await getDecimals(tokenAddress);
+        console.log(decimals);
         amountToken = addDecimals(amountToken, decimals);
         SocketIO.emit('bot-end', {
             amount : amountToken
         }); 
+        SocketIO.emit('show-result', null);
         console.log('All BOUGHT!');
         bStop = true;
         return;
     }
-    console.log('mainMachine1');
     let record = await getPrices(tokenAddress);
     counter++;
     // if (priceDB.length == recordLimit) priceDB.shift();

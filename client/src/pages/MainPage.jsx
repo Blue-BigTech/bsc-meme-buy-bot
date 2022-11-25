@@ -111,6 +111,10 @@ function MainPage() {
       setSuccess("All BOUGHT!");
       openSuccess();
     });
+    mySocket.on('show-result', (data) => {
+      setbStopping(false);
+      setbStart(false);
+    })
     mySocket.on('stop-bot', (data) => {
       setbStopping(false);
       setbStart(false);
@@ -119,7 +123,6 @@ function MainPage() {
     socket = mySocket;  
   }
   const openSuccess = () => {
-    setSuccess('SUCCESS MSG');
     setbSuccess(true);
   };
   const closeSuccess = (event, reason) => {
@@ -128,7 +131,6 @@ function MainPage() {
     }
     setbSuccess(false);
   };
-
   const openFailed = () => {
     setbFailed(true);
   };
@@ -317,6 +319,9 @@ function MainPage() {
               <Divider variant="fullWidth" color=""/>
             </Grid>
             <Grid item xs={12} sm={12}>
+            <Typography variant="h6" gutterBottom>
+                Please don't refresh browser!
+              </Typography>
               <Typography variant="h6" gutterBottom>
                 Setting
               </Typography>
