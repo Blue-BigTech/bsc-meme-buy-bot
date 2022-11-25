@@ -117,6 +117,7 @@ const pridictSlippage = () => {
 
 const mainMachine = async () => {
     // console.log('call mainMachine')
+    console.log('mainMachine0');
     if((parseFloat(spentBNB)*1.05) >= (totalUSD/BNBPrice)) {
         let amountToken = balanceOf(tokenAddress, PUBLIC_KEY);
         let decimals = getDecimals(tokenAddress);
@@ -128,6 +129,7 @@ const mainMachine = async () => {
         bStop = true;
         return;
     }
+    console.log('mainMachine1');
     let record = await getPrices(tokenAddress);
     counter++;
     // if (priceDB.length == recordLimit) priceDB.shift();
