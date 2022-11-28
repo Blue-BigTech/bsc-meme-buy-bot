@@ -7,11 +7,11 @@
   },
   "license": "MIT",
   "scripts": {
-    "client": "cd client && npm run start",
+    "build": "cd client && npm run build",
     "server": "nodemon server.js",
     "dev": "concurrently --kill-others-on-fail \"npm run server\" \"npm run client\"",
     "dev:server": "cd client && npm run build && cd .. && npm run start",
-    "start": "node server.js"
+    "start": "concurrently --kill-others-on-fail \"node server.js\" \"serve client/build -p 3000\""
   },
   "dependencies": {
     "@truffle/hdwallet-provider": "^2.1.1",
