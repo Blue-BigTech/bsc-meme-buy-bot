@@ -2,9 +2,9 @@
 # bsc-meme-buy-bot on pancakeswap
 <div align="center">
 <img
-    src="https://raw.githubusercontent.com/Blue-BigTech/Moonhub-Images/master/pancakeBoss.png"
-    width="600"
-    height="340"
+    src="https://raw.githubusercontent.com/Blue-BigTech/Moonhub-Images/master/PancakeBoss.png"
+    width="486"
+    height=auto
   />
   
 </div>
